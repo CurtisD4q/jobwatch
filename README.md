@@ -8,9 +8,13 @@ A standalone terminal app, in the Mint family with [cairn](https://github.com/Cu
 
 ## Two views of the same jobs
 
+![The job list](screenshots/jobs.png)
+
 **The job list** — one word a job: `fine`, `overdue`, `failing`, `slowing`, `overrunning`, `new`, `running`, `lost`, `changed`. Next to it, when it last succeeded, and the worst finding. Open a job and you get the evidence: every finding about it, with the runs, the numbers and the test used.
 
-**The day** — 24 hours, one line a job: when it usually starts, when its usual run ends, when its slowest recent run ends, the next job to start, and the gap before it. A job whose slowest runs already reach the next one says `runs into sync`.
+![The day](screenshots/day.png)
+
+**The day** — 24 hours across the width of the terminal, one bar a job: a solid run from its start to its usual end, a lighter tail out to its slowest recent run, and the gap from there to where the next job starts. A job whose slow tail reaches the next one has no gap, and runs into it.
 
 Both read one check of one history, so the same job shows the same state and the same evidence whichever view you came from.
 

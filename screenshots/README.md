@@ -1,10 +1,11 @@
 # Screenshots
 
-The images the main README shows. They are made from the program itself,
-not drawn:
+The images the main README shows, made from the program itself and not drawn
+by hand:
 
-    XDG_DATA_HOME=/path/to/a/copy of runs
-    jobwatch --dir "$XDG_DATA_HOME/mint-loom" --screen "The day"
+1. Seed a history with `mint-jw import` (or record a few jobs).
+2. Run `jobwatch --screen "The day"` in a terminal about 100 columns wide.
+3. Capture the pane with the colour stripped (`tmux capture-pane -p` does
+   this), and render it in a monospace font on `#14161a`.
 
-Record the terminal (asciinema, or a screen recorder), crop to the frame,
-and save as `jobs.png`, `day.png`, `evidence.png`.
+Screenshots show seeded runs, not anyone's real jobs.
