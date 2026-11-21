@@ -38,13 +38,7 @@ func main() {
 		Group:   "Observe over time",
 		Items:   ui.JobwatchEntries(o),
 	}
-	// With no arguments, start on the job list rather than the menu. --dir
-	// is read above and left out of what Mint sees, so the two together
-	// still count as no arguments.
-	os.Args = append([]string{os.Args[0]}, flagRest(os.Args[1:])...)
-	if len(os.Args) == 1 {
-		os.Args = append(os.Args, "--screen", "Jobs")
-	}
+	os.Args = openScreen(os.Args)
 	app.Run()
 }
 
@@ -78,4 +72,15 @@ func flagRest(args []string) []string {
 		out = append(out, a)
 	}
 	return out
+}
+
+// openScreen is the arguments Mint sees, with the job list asked for when
+// nothing was asked for. --dir is ours and left out, so `jobwatch --dir X`
+// still counts as no arguments.
+func openScreen(args []string) []string {
+	rest := append([]string{args[0]}, flagRest(args[1:])...)
+	if len(rest) == 1 {
+		rest = append(rest, "--screen", "Jobs")
+	}
+	return rest
 }
