@@ -4,7 +4,7 @@ Are my backup and sync jobs still working, and will they keep working? Without r
 
 Most backup failures are slow and predictable: data grows, runs take longer, the gap before the next job shrinks, and eventually one job overruns the next or is skipped. Jobwatch catches that early. **It never changes a schedule.**
 
-A standalone terminal app, in the Mint family with [cairn](https://github.com/CurtisD4q/cairn) and susynth: one binary, no daemon, no database. It reads what `mint-jw` recorded.
+A standalone terminal app, in the Mint family with [cairn](https://github.com/CurtisD4q/cairn) and susynth: one binary, no daemon, no database. The same program records your jobs and shows how they are doing.
 
 ## Two views of the same jobs
 
@@ -36,17 +36,28 @@ jobwatch --dir PATH          read a history kept somewhere other than ~/.local/s
 jobwatch --version
 ```
 
-## Recording a job
-
-Put `mint-jw record` in front of a crontab line. The command runs as given, its output and exit code pass straight through, so cron still mails a failure.
+The same program has commands for scripts and cron. `jobwatch help` lists them:
 
 ```
-30 2 * * *  mint-jw record nightly-backup -- restic backup /data
+jobwatch record NAME -- COMMAND...   run a job and record the run
+jobwatch check [--shadow] [--notify] alert on problems: for a timer or cron
+jobwatch schedule SPEC --on          run the check on a schedule (--undo turns it off)
+jobwatch report | forecast | timeline [--json]
+jobwatch import journal --unit UNIT  read history jobwatch did not record
+jobwatch respace                     suggest start times; nothing is applied
+```
+
+## Recording a job
+
+Put `jobwatch record` in front of a crontab line. The command runs as given, its output and exit code pass straight through, so cron still mails a failure.
+
+```
+30 2 * * *  jobwatch record nightly-backup -- restic backup /data
 ```
 
 Six weeks later the list says *"Nightly backup takes 31% longer per GB than 6 weeks ago (p = 0.01). The data has hardly changed, so it is slowing down, not growing."* Open it and you see the runs, the trend, and its slowest runs ending four minutes before the 03:00 sync starts. You move the sync by hand.
 
-Jobs already in a systemd journal, an rclone or an rsync log can be read in with `mint-jw import`. Those runs are marked lower confidence, and the app says so.
+Jobs already in a systemd journal, an rclone or an rsync log can be read in with `jobwatch import`. Those runs are marked lower confidence, and the app says so.
 
 ## What it checks
 
@@ -76,7 +87,7 @@ The false-alarm rate and the detection of planted faults are measured against a 
 
 ## Built from
 
-Jobwatch is a program over [mint-loom](https://github.com/CurtisD4q/mint-loom)'s health checks, with [mint-kit](https://github.com/CurtisD4q/mint-kit) for the interface. The checks, the simulator and the scorecard live in mint-loom; `mint-jw` is its command.
+Jobwatch is a program over [mint-loom](https://github.com/CurtisD4q/mint-loom)'s health checks, with [mint-kit](https://github.com/CurtisD4q/mint-kit) for the interface. The checks, the simulator and the scorecard live in mint-loom. jobwatch carries mint-loom's `mint-jw` commands itself, so there is nothing else to install.
 
 ## Also in Emacs
 

@@ -55,3 +55,30 @@ func TestFlagDir(t *testing.T) {
 		}
 	}
 }
+
+// A command runs and exits; anything else opens the screens, so Mint's own
+// flags and a screen name are never taken for a command.
+func TestIsCommand(t *testing.T) {
+	for _, c := range []struct {
+		args []string
+		want bool
+	}{
+		{nil, false},
+		{[]string{"record", "nightly", "--", "true"}, true},
+		{[]string{"check", "--shadow"}, true},
+		{[]string{"import", "journal", "--unit", "backup.service"}, true},
+		{[]string{"--screen", "Jobs"}, false},
+		{[]string{"--version"}, false},
+		{[]string{"--help"}, false},
+		{[]string{"Jobs"}, false},
+		{[]string{"help"}, true},
+	} {
+		if got := isCommand(c.args); got != c.want {
+			t.Errorf("isCommand(%q) = %v, want %v", c.args, got, c.want)
+		}
+	}
+	// --dir comes off before the command is looked for
+	if !isCommand(flagRest([]string{"--dir", "/tmp/x", "report"})) {
+		t.Error("--dir in front of a command hid it")
+	}
+}

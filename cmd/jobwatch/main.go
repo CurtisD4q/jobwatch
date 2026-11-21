@@ -1,7 +1,9 @@
 // Command jobwatch is the app: are my backup and sync jobs still working,
-// and will they keep working? It reads what mint-jw recorded, says each
-// job's state in a word, draws the day, and shows the numbers behind every
-// finding. It never changes a schedule.
+// and will they keep working? With no command it opens the job list: each
+// job's state in a word, the day drawn, and the numbers behind every
+// finding. With a command (record, check, report, ...) it does that one
+// thing and exits, so one program both records the jobs and shows them.
+// It never changes a schedule.
 package main
 
 import (
@@ -10,6 +12,7 @@ import (
 
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
+	"github.com/CurtisD4q/mint-loom/jw"
 	"github.com/CurtisD4q/mint-loom/ui"
 	"github.com/CurtisD4q/mint-tools/run"
 )
@@ -31,7 +34,12 @@ func main() {
 	if dir := flagDir(os.Args[1:]); dir != "" {
 		book.Dir = dir
 	}
-	o := ui.Options{Book: book, Program: exe}
+	// A command such as `jobwatch record NAME -- restic backup /data` runs
+	// and exits. jw reads --dir itself.
+	if isCommand(flagRest(os.Args[1:])) {
+		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
+	}
+	o := ui.Options{Book: book, Program: exe, Command: "jobwatch"}
 	app := &mint.App{
 		Title:   "✦ Jobwatch",
 		Version: Version,
@@ -40,6 +48,19 @@ func main() {
 	}
 	os.Args = openScreen(os.Args)
 	app.Run()
+}
+
+// commands are the jobs jobwatch does without opening the screens.
+// `jobwatch help` lists them; --help is the screens' own help.
+var commands = map[string]bool{
+	"record": true, "report": true, "timeline": true, "forecast": true,
+	"schedule": true, "check": true, "import": true, "respace": true,
+	"help": true,
+}
+
+// isCommand is true when args (without --dir) start with a command.
+func isCommand(args []string) bool {
+	return len(args) > 0 && commands[args[0]]
 }
 
 // flagDir is the --dir a person gave, and "" when there is none. It is read
