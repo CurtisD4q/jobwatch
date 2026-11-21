@@ -40,3 +40,58 @@
 
 (provide 'jobwatch-test)
 ;;; jobwatch-test.el ends here
+
+;; The day
+
+(defconst jobwatch-test-timeline
+  "{\"clock\":\"00          06          12          18        24\",\"bars\":[{\"name\":\"backup\",\"state\":\"fine\",\"period\":1440,\"start\":120,\"usual\":150,\"slow\":150,\"next\":240,\"nextName\":\"sync\",\"gap\":60,\"overrun\":false},{\"name\":\"sync\",\"state\":\"slowing\",\"says\":\"It is 31% slower per GB than six weeks ago.\",\"period\":1440,\"start\":240,\"usual\":270,\"slow\":300,\"next\":-1,\"gap\":0,\"overrun\":false}]}")
+
+(defconst jobwatch-test-timeline-overrun
+  "{\"clock\":\"00          06          12          18        24\",\"bars\":[{\"name\":\"backup\",\"state\":\"overrunning\",\"period\":1440,\"start\":120,\"usual\":150,\"slow\":250,\"next\":240,\"nextName\":\"sync\",\"gap\":0,\"overrun\":true}]}")
+
+(ert-deftest jobwatch-timeline-shows-a-day ()
+  (let* ((jobwatch--timeline (jobwatch--parse jobwatch-test-timeline))
+         (text (jobwatch--timeline-text)))
+    ;; Both jobs, with their clock times.
+    (should (string-match-p "backup" text))
+    (should (string-match-p "sync" text))
+    (should (string-match-p "02:00" text))
+    (should (string-match-p "02:30" text))
+    (should (string-match-p "04:00" text))
+    ;; The gap before the next job, said the way people say it.
+    (should (string-match-p "1.0 hours before sync" text))
+    ;; A job nothing follows says so rather than showing a blank.
+    (should (string-match-p "no job starts within 12 hours" text))
+    ;; The state word comes from the same report, so it is the same word.
+    (should (string-match-p "slowing" text))
+    ;; The axis is the one the command drew.
+    (should (string-match-p "18" text))))
+
+(ert-deftest jobwatch-timeline-says-when-a-job-runs-into-the-next ()
+  (let* ((jobwatch--timeline (jobwatch--parse jobwatch-test-timeline-overrun))
+         (text (jobwatch--timeline-text)))
+    (should (string-match-p "runs into sync" text))
+    (should-not (string-match-p "before sync" text))))
+
+(ert-deftest jobwatch-timeline-is-empty-not-broken ()
+  (let ((jobwatch--timeline (jobwatch--parse "{\"clock\":\"\",\"bars\":[]}")))
+    (should (string-match-p "No job has enough runs to draw yet" (jobwatch--timeline-text))))
+  ;; A report with no timeline at all is the same as an empty one.
+  (let ((jobwatch--timeline nil))
+    (should (string-match-p "No job has enough runs" (jobwatch--timeline-text)))))
+
+(ert-deftest jobwatch-timeline-keeps-the-clock-honest ()
+  (should (equal (jobwatch--minutes 0) "00:00"))
+  (should (equal (jobwatch--minutes 150) "02:30"))
+  (should (equal (jobwatch--minutes 1440) "00:00+1d"))
+  (should (equal (jobwatch--minutes 1470) "00:30+1d"))
+  ;; A run that starts at 23:00 and ends at 01:00 reads as the next day.
+  (should (equal (jobwatch--minutes 1500) "01:00+1d")))
+
+(ert-deftest jobwatch-timeline-marks-a-weekly-job ()
+  (let* ((jobwatch--timeline
+          (jobwatch--parse
+           "{\"clock\":\"\",\"bars\":[{\"name\":\"week\",\"state\":\"fine\",\"period\":10080,\"start\":120,\"usual\":150,\"slow\":250,\"next\":240,\"nextName\":\"daily\",\"gap\":0,\"overrun\":true}]}"))
+         (text (jobwatch--timeline-text)))
+    (should (string-match-p "week" text))
+    (should (string-match-p "(weekly)" text))))

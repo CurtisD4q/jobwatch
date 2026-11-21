@@ -135,6 +135,122 @@ JSON false is the symbol :false."
         (setq out (concat out "\nThe report said a move was applied. This buffer did not apply one.\n"))))
     out))
 
+;;; The day
+
+(defvar jobwatch--timeline nil
+  "Last parsed timeline, an alist.")
+
+(defvar jobwatch--timeline-row nil
+  "The job the cursor is on in the timeline, by name.")
+
+(defun jobwatch--minutes (m)
+  "M as a clock time, \"02:30\". Past midnight wraps to the next day."
+  (let* ((n (round m))
+         (d (floor n 1440))
+         (r (- n (* d 1440)))
+         (s (format "%02d:%02d" (floor r 60) (mod r 60))))
+    (if (> d 0) (format "%s+%dd" s d) s)))
+
+(defun jobwatch--timeline-bars ()
+  "The bars of the last timeline."
+  (or (jobwatch--get jobwatch--timeline "bars") '()))
+
+(defun jobwatch--timeline-text ()
+  "The timeline as text: an axis, then one line per job.
+Each line is the job, its usual run, the gap before the next job, and its
+state. A job whose slowest runs already reach the next start says so."
+  (let ((bars (jobwatch--timeline-bars))
+        (clock (jobwatch--field jobwatch--timeline "clock"))
+        (width 16)
+        (out ""))
+    (if (null bars)
+        (concat "No job has enough runs to draw yet.\n"
+                "A job appears once it has three recent successful runs by its schedule.\n")
+      ;; The name column is as wide as the longest name, so the clock
+      ;; times line up under each other.
+      (dolist (b bars)
+        (setq width (max width (length (jobwatch--field b "name")))))
+      (setq out (concat (format (format "%%-%ds %%-7s %%-7s %%-7s %%-7s %%s\n" width)
+                                "Job" "Starts" "Usual" "Slowest" "Next" "Gap and state")
+                        clock "\n"))
+      (dolist (b bars)
+        (let* ((name (jobwatch--field b "name"))
+               (next (jobwatch--get b "next"))
+               ;; JSON false is the symbol :false, which is not nil, so
+               ;; it has to be turned into a real false.
+               (over (let ((v (jobwatch--get b "overrun")))
+                       (and v (not (eq v :false)))))
+               (gap (jobwatch--get b "gap"))
+               (next-name (jobwatch--field b "nextName"))
+               (low (let ((v (jobwatch--get b "lowConfidence")))
+                      (and v (not (eq v :false)))))
+               (says (jobwatch--field b "says"))
+               (state (jobwatch--field b "state"))
+               (where (cond
+                       ((or (null next) (eq next :false) (not (numberp next)) (< (float next) 0))
+                        "no job starts within 12 hours")
+                       (over (if (string-empty-p next-name)
+                         "its slowest runs reach midnight"
+                       (format "runs into %s" next-name)))
+                       ((and (numberp gap) (> (float gap) 0))
+                        (format "%s before %s" (jobwatch--span gap) next-name))
+                       (t (format "before %s" next-name)))))
+          (setq out (concat out
+                            (format (format "%%-%ds %%-7s %%-7s %%-7s %%-7s %%s%%s\n" width)
+                                    name
+                                    (jobwatch--minutes (float (jobwatch--get b "start")))
+                                    (jobwatch--minutes (float (jobwatch--get b "usual")))
+                                    (jobwatch--minutes (float (jobwatch--get b "slow")))
+                                    (if (and (numberp next) (>= (float next) 0))
+                                        (jobwatch--minutes (float next))
+                                      "-")
+                                    where
+                                    (cond ((and over (eq (jobwatch--get b "period") 10080)) " (weekly)")
+                                          (t "")))
+                            (if low "                 (lower confidence)\n" "")
+                            (if (string-empty-p says) ""
+                              (format "                 %s: %s\n" state says))))))
+      out)))
+
+(defun jobwatch--span (minutes)
+  "MINUTES said the way people do: 4 min, 1.5 hours, 2 days."
+  (let ((m (float minutes)))
+    (cond ((< m 1) "under a minute")
+          ((< m 60) (format "%d min" (round m)))
+          ((< m 2880) (format "%.1f hours" (/ m 60)))
+          (t (format "%.0f days" (/ m 1440))))))
+
+(defun jobwatch-timeline-text ()
+  "The timeline as text, from the last `jobwatch-timeline'."
+  (interactive)
+  (let ((text (jobwatch--timeline-text)))
+    (with-current-buffer (get-buffer-create "*jobwatch timeline*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert text)
+        (goto-char (point-min))
+        (special-mode))
+      (display-buffer (current-buffer)))))
+
+;;;###autoload
+(defun jobwatch-timeline ()
+  "Show one day of the jobs from `mint-jw timeline --json'.
+Each job's usual run, its slowest runs, and the gap before the next job
+starts. RET on a job opens its evidence, from the report."
+  (interactive)
+  (let* ((got (jobwatch--call '("timeline" "--json")))
+         (code (car got)))
+    (unless (or (= code 0) (= code 1))
+      (error "mint-jw timeline failed: %s" (cdr got)))
+    (setq jobwatch--timeline (jobwatch--parse (cdr got)))
+    ;; The report carries the findings the evidence buffer shows. Reading it
+    ;; too means a job opened from the timeline has the same evidence as the
+    ;; same job opened from the list.
+    (let ((rep (jobwatch--call '("report" "--json"))))
+      (when (or (= (car rep) 0) (= (car rep) 1))
+        (ignore-errors (jobwatch--ingest (cdr rep)))))
+    (jobwatch-timeline-text)))
+
 (define-derived-mode jobwatch-mode tabulated-list-mode "Jobwatch"
   "Table of scheduled jobs."
   (setq tabulated-list-format [("Job" 16 t) ("State" 12 t) ("Level" 10 t) ("Runs" 6 t) ("Says" 40 t)])
@@ -219,6 +335,7 @@ Draws an SVG where Emacs can show images, and the SVG source otherwise."
 (define-key jobwatch-mode-map (kbd "e") #'jobwatch-evidence)
 (define-key jobwatch-mode-map (kbd "p") #'jobwatch-plot)
 (define-key jobwatch-mode-map (kbd "s") #'jobwatch-respace)
+(define-key jobwatch-mode-map (kbd "t") #'jobwatch-timeline)
 
 (provide 'jobwatch)
 ;;; jobwatch.el ends here
