@@ -6,10 +6,10 @@
 
 ;;; Commentary:
 
-;; jobwatch reads `mint-jw report --json` and lists each job. A row opens
+;; jobwatch reads `jobwatch report --json` and lists each job. A row opens
 ;; the evidence for that job. Where Emacs can draw, the recent successful
 ;; run lengths are an SVG. `jobwatch-respace` shows the plan from
-;; `mint-jw respace` and does not apply it.
+;; `jobwatch respace` and does not apply it.
 ;;
 ;; Needs Emacs 27.
 
@@ -24,13 +24,13 @@
   "Loom jobs in Emacs."
   :group 'external)
 
-(defcustom jobwatch-program "mint-jw"
+(defcustom jobwatch-program "jobwatch"
   "Program that prints the job report."
   :type 'string
   :group 'jobwatch)
 
 (defcustom jobwatch-window "2h"
-  "How far `jobwatch-respace' may move a start, passed to mint-jw."
+  "How far `jobwatch-respace' may move a start, passed to jobwatch."
   :type 'string
   :group 'jobwatch)
 
@@ -46,7 +46,7 @@
       (kill-buffer buf))))
 
 (defun jobwatch--parse (text)
-  "Parse TEXT from mint-jw --json into an alist."
+  "Parse TEXT from jobwatch --json into an alist."
   (json-parse-string text :object-type 'alist :array-type 'list :null-object nil))
 
 (defun jobwatch--get (obj key)
@@ -234,14 +234,14 @@ state. A job whose slowest runs already reach the next start says so."
 
 ;;;###autoload
 (defun jobwatch-timeline ()
-  "Show one day of the jobs from `mint-jw timeline --json'.
+  "Show one day of the jobs from `jobwatch timeline --json'.
 Each job's usual run, its slowest runs, and the gap before the next job
 starts. RET on a job opens its evidence, from the report."
   (interactive)
   (let* ((got (jobwatch--call '("timeline" "--json")))
          (code (car got)))
     (unless (or (= code 0) (= code 1))
-      (error "mint-jw timeline failed: %s" (cdr got)))
+      (error "%s timeline failed: %s" jobwatch-program (cdr got)))
     (setq jobwatch--timeline (jobwatch--parse (cdr got)))
     ;; The report carries the findings the evidence buffer shows. Reading it
     ;; too means a job opened from the timeline has the same evidence as the
@@ -264,12 +264,12 @@ starts. RET on a job opens its evidence, from the report."
 
 ;;;###autoload
 (defun jobwatch ()
-  "List scheduled jobs from `mint-jw report --json'."
+  "List scheduled jobs from `jobwatch report --json'."
   (interactive)
   (let* ((got (jobwatch--call '("report" "--json")))
          (code (car got)))
     (unless (or (= code 0) (= code 1))
-      (error "mint-jw report failed: %s" (cdr got)))
+      (error "%s report failed: %s" jobwatch-program (cdr got)))
     (let ((jobs (jobwatch--ingest (cdr got))))
       (with-current-buffer (get-buffer-create "*jobwatch*")
         (jobwatch-mode)
@@ -316,12 +316,12 @@ Draws an SVG where Emacs can show images, and the SVG source otherwise."
 
 ;;;###autoload
 (defun jobwatch-respace ()
-  "Show a re-spacing plan from `mint-jw respace'. Nothing is applied."
+  "Show a re-spacing plan from `jobwatch respace'. Nothing is applied."
   (interactive)
   (let* ((got (jobwatch--call (list "respace" "--json" "--window" jobwatch-window)))
          (code (car got)))
     (unless (or (= code 0) (= code 1))
-      (error "mint-jw respace failed: %s" (cdr got)))
+      (error "%s respace failed: %s" jobwatch-program (cdr got)))
     (let ((plan (jobwatch--parse (cdr got))))
       (with-current-buffer (get-buffer-create "*jobwatch respace*")
         (let ((inhibit-read-only t))
