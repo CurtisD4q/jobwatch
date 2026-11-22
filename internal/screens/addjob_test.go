@@ -33,7 +33,7 @@ func TestAddJobsListsTheCrontab(t *testing.T) {
 	if !strings.Contains(text(AddJobs(Options{Book: &loom.Book{Dir: t.TempDir(), Exec: tabExec{}}})), "no job lines") {
 		t.Error("empty crontab")
 	}
-	if len(Entries(Options{Book: b})) != 6 {
+	if len(Entries(Options{Book: b})) != 7 {
 		t.Error("Add a job is not on the home list")
 	}
 }
