@@ -46,8 +46,8 @@ type timelineBarJSON struct {
 }
 
 func timeline(args []string, o Options) int {
-	js, bad := flags(args, map[string]bool{"--json": false})
-	if bad {
+	js, ok := jsonFlag(args)
+	if !ok {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}

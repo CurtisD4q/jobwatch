@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -115,19 +114,15 @@ func TestShadowKeepsItsOwnStreak(t *testing.T) {
 		t.Fatal(err)
 	}
 	// A day of runs before each check, twelve hours apart: one that
-	// finished, and one skipped because it was still going. A warning only holds again on a run the
-	// last check did not have, so each check needs a new day.
+	// finished, and one skipped because it was still going. A warning only
+	// holds again on a run the last check did not have, so each check
+	// needs a new day.
 	day := func(now time.Time) {
-		ok := now.Add(-14 * time.Hour).Format(time.RFC3339)
-		end := now.Add(-13 * time.Hour).Format(time.RFC3339)
-		skip := now.Add(-2 * time.Hour).Format(time.RFC3339)
-		body := fmt.Sprintf("{\"v\":2,\"recipe\":\"nightly\",\"start\":%q,\"end\":%q,\"by\":\"schedule\",\"ok\":true}\n{\"v\":2,\"recipe\":\"nightly\",\"start\":%q,\"end\":%q,\"by\":\"schedule\",\"ok\":false,\"skipped\":\"it is already running\"}\n", ok, end, skip, skip)
-		f, err := os.OpenFile(filepathJoin(dir, "runs", "nightly.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
-		if err != nil {
-			t.Fatal(err)
-		}
-		f.WriteString(body)
-		f.Close()
+		ok := now.Add(-14 * time.Hour)
+		skip := now.Add(-2 * time.Hour)
+		appendRuns(t, dir, "nightly",
+			loom.Run{Start: ok, End: ok.Add(time.Hour), By: "schedule", OK: true},
+			loom.Run{Start: skip, End: skip, By: "schedule", Skip: "it is already running"})
 	}
 	logPath := filepathJoin(dir, "health", "shadow.log")
 	var lines []string
@@ -504,5 +499,26 @@ func TestOwnName(t *testing.T) {
 	Main([]string{"help"}, o2)
 	if !strings.Contains(out2.String(), "jw record NAME") {
 		t.Fatalf("given name:\n%s", out2)
+	}
+}
+
+// appendRuns adds runs to a job's history file, as Loom writes them.
+func appendRuns(t *testing.T, dir, name string, runs ...loom.Run) {
+	t.Helper()
+	if err := os.MkdirAll(filepathJoin(dir, "runs"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	f, err := os.OpenFile(filepathJoin(dir, "runs", name+".jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	for _, r := range runs {
+		r.Recipe = name
+		b, err := json.Marshal(r)
+		if err != nil {
+			t.Fatal(err)
+		}
+		f.Write(append(b, '\n'))
 	}
 }

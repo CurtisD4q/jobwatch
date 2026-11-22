@@ -10,13 +10,18 @@ import (
 )
 
 func schedule(args []string, o Options) int {
-	js, bad := flags(args, map[string]bool{"--json": false, "--on": false, "--undo": false})
-	if bad || (js["--on"] && js["--undo"]) {
+	fs := newFlags("schedule")
+	asJSON := fs.Bool("json", false, "")
+	on := fs.Bool("on", false, "")
+	undo := fs.Bool("undo", false, "")
+	rest, err := parse(fs, args)
+	if err != nil || (*on && *undo) {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}
+	js := map[string]bool{"--json": *asJSON, "--on": *on, "--undo": *undo}
 	spec := ""
-	if rest := remain(args); len(rest) == 1 {
+	if len(rest) == 1 {
 		spec = rest[0]
 	} else if len(rest) > 1 || (!js["--undo"] && len(rest) == 0) {
 		fmt.Fprintln(o.err(), "use: "+o.name()+" schedule SPEC [--on | --undo]")
