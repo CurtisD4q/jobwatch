@@ -111,7 +111,7 @@ func runRows(o Options, name string) []mint.Row {
 	}
 	var rows []mint.Row
 	if len(lens) >= 2 {
-		rows = append(rows, mint.Note(fmt.Sprintf("Lengths, oldest to newest: %s  (%s to %s)", sparkline(lens), length(lo), length(hi))))
+		rows = append(rows, mint.Note("Lengths, oldest to newest:"), mint.Note(fmt.Sprintf("%s  %s to %s", sparkline(lens), length(lo), length(hi))))
 	}
 	shown := runs
 	if len(shown) > 12 {

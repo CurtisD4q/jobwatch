@@ -61,8 +61,8 @@ func Settings(o Options) *mint.Screen {
 		}
 		keys = append(keys,
 			mint.Note("r   read the history and crontab again"),
-			mint.Note("↑↓ move, ⏎ open or change, Tab next pane, [ ] pane size, y copy, b back, q quit"),
 		)
+		keys = append(keys, wrapped("↑↓ move, ⏎ open or change, Tab next pane, [ ] pane size, y copy, b back, q quit", "")...)
 		style := os.Getenv("MINT_KEYS")
 		if style == "" {
 			style = "default"

@@ -53,6 +53,9 @@ func TestOverviewWithJobs(t *testing.T) {
 }
 
 func TestOverviewBanner(t *testing.T) {
+	old := termCols
+	t.Cleanup(func() { termCols = old })
+	termCols = func() int { return 140 }
 	fine := health.Report{Statuses: []health.Status{{Job: "a", State: "fine"}}}
 	if got := overviewBanner(fine, false, 1); !strings.Contains(got, "background check is off") {
 		t.Fatal(got)
@@ -75,5 +78,21 @@ func TestLocalStartRounds(t *testing.T) {
 	want := time.Date(2026, 1, 10, 3, 0, 0, 0, time.UTC).Local().Format("15:04")
 	if got != want {
 		t.Fatalf("%s, want %s", got, want)
+	}
+}
+
+// On a narrow terminal the banner says it more briefly, rather than being
+// cut off.
+func TestOverviewBannerFits(t *testing.T) {
+	old := termCols
+	t.Cleanup(func() { termCols = old })
+	termCols = func() int { return 52 }
+	many := health.Report{}
+	for _, n := range []string{"nightly-backup", "photo-sync", "offsite-copy"} {
+		many.Statuses = append(many.Statuses, health.Status{Job: n, State: "overdue", Level: health.Problem})
+	}
+	got := overviewBanner(many, true, 3)
+	if len([]rune(got)) > 46 || !strings.HasPrefix(got, "3 problems: nightly-backup") {
+		t.Fatalf("%q (%d)", got, len([]rune(got)))
 	}
 }

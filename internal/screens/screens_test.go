@@ -29,7 +29,7 @@ func text(s *mint.Screen) string {
 func TestJobwatchScreens(t *testing.T) {
 	b := &loom.Book{Dir: t.TempDir(), Exec: run.Local{}}
 	o := Options{Book: b}
-	if !strings.Contains(text(Jobs(o)), "No jobs yet") || !strings.Contains(text(Jobs(o)), "jobwatch record nightly-backup") {
+	if !strings.Contains(text(Jobs(o)), "No jobs yet") || !strings.Contains(text(Jobs(o)), "jobwatch record NAME --") {
 		t.Fatal("empty list")
 	}
 	var runs []loom.Run
@@ -44,7 +44,7 @@ func TestJobwatchScreens(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := text(Jobs(o))
-	if !strings.Contains(got, "nightly-backup") || !strings.Contains(got, "lower confidence") {
+	if !strings.Contains(got, "nightly-backup ◌") || !strings.Contains(got, "lower confidence") {
 		t.Fatalf("%s", got)
 	}
 	ev := text(Evidence(o, "nightly-backup"))

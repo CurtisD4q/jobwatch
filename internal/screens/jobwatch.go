@@ -1,9 +1,11 @@
 package screens
 
 import (
+	"fmt"
 	mint "github.com/CurtisD4q/mint-kit"
 	"github.com/CurtisD4q/mint-kit/layouts"
 	"github.com/CurtisD4q/mint-loom/health"
+	"time"
 )
 
 // Entries are jobwatch's screens, for its home list.
@@ -51,30 +53,38 @@ func Jobs(o Options) *mint.Screen {
 		if len(rep.Statuses) == 0 {
 			s.Sections = []mint.Section{{Rows: []mint.Row{
 				mint.Note("No jobs yet."),
-				mint.Note("Put this in front of a crontab line to record a job of your own:"),
-				mint.Note("   " + o.command() + " record nightly-backup -- restic backup /data"),
+				mint.Note("Put this in front of a crontab line:"),
+				mint.Note("  " + o.command() + " record NAME -- COMMAND"),
 			}}}
 			return
 		}
 		var rows []mint.Row
 		for _, st := range rep.Statuses {
 			st := st
-			val := st.State
-			if st.Confidence == "low" {
-				val = "lower confidence, " + st.State
-			}
+			val := shortState(st)
 			if !st.LastOK.IsZero() {
-				val += ", last success " + st.LastOK.Format("2 Jan 15:04")
+				val += " · " + ago(o.now().Sub(st.LastOK))
+			}
+			label := st.Job
+			if st.Confidence == "low" {
+				label += " ◌"
 			}
 			rows = append(rows, mint.Action(mint.ActionOpts{
-				ID: "jw-" + st.Job, Label: st.Job, Alert: st.Level == health.Problem,
+				ID: "jw-" + st.Job, Label: label, Alert: st.Level == health.Problem,
 				Get: func() string { return val },
 				OnActivate: func(ctx *mint.Ctx) {
 					ctx.Push(Evidence(o, st.Job))
 				},
 			}))
 		}
-		s.Sections = []mint.Section{{Name: "Jobs", Rows: rows}}
+		note := "Each job's state, and how long since it last succeeded."
+		for _, st := range rep.Statuses {
+			if st.Confidence == "low" {
+				note += " ◌ read from an outside log, so lower confidence."
+				break
+			}
+		}
+		s.Sections = []mint.Section{{Name: "Jobs", Rows: rows}, {Rows: wrapped(note, "")}}
 	}
 	return o.withKeys(scr)
 }
@@ -102,7 +112,7 @@ func Evidence(o Options, name string) *mint.Screen {
 		}
 		head := wrapped(describe(*status), "")
 		if status.Confidence == "low" {
-			head = append(head, mint.Note("Read from an outside log, so this is lower confidence."))
+			head = append(head, wrapped("Read from an outside log, so this is lower confidence.", "")...)
 		}
 		var found []mint.Row
 		for _, f := range rep.Findings {
@@ -128,20 +138,27 @@ func Evidence(o Options, name string) *mint.Screen {
 			{Name: "Settings", Rows: settingsRows(o, name, rep.Findings, mutes)},
 			{Name: "", Rows: []mint.Row{
 				mint.Action(mint.ActionOpts{ID: "day", Label: "The day",
-					Get:        func() string { return "24 hours, one line a job" },
+					Get:        func() string { return "⏎" },
 					OnActivate: func(ctx *mint.Ctx) { ctx.Push(Day(o)) }}),
-				mint.Note("Jobwatch suggests; it never changes a schedule itself."),
+				mint.Note("It never changes a schedule itself."),
 			}},
 		}
 	}
 	return o.withKeys(scr)
 }
 
+// termCols is the terminal's width, which text wraps to. Tests set it to
+// draw a screen at a chosen width.
+var termCols = func() int {
+	_, cols := mint.TermSize()
+	return cols
+}
+
 // wrapped is text as notes wrapped to the terminal's width, each line after
 // the first indented as the first is, so a finding stays readable on a
 // narrow screen rather than being cut off.
 func wrapped(text, indent string) []mint.Row {
-	_, cols := mint.TermSize()
+	cols := termCols()
 	if cols <= 0 {
 		cols = 80
 	}
@@ -150,4 +167,17 @@ func wrapped(text, indent string) []mint.Row {
 		rows = append(rows, mint.Note(indent+l))
 	}
 	return rows
+}
+
+// ago is a time since, in a few characters: "40m", "5h", "3d".
+func ago(d time.Duration) string {
+	switch {
+	case d < time.Minute:
+		return "now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	case d < 48*time.Hour:
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	}
+	return fmt.Sprintf("%dd", int(d.Hours()/24))
 }

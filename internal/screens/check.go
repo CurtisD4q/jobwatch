@@ -75,12 +75,12 @@ func BackgroundCheck(o Options) *mint.Screen {
 			mint.Action(mint.ActionOpts{ID: "notify", Label: "Desktop notifications", Get: func() string { return notify },
 				OnActivate: func(ctx *mint.Ctx) { setModes(ctx, o, cs.Shadow, !cs.Notify) }}),
 		}
-		about := []mint.Row{
-			mint.Note("Shadow mode writes what the check would send, and sends nothing. Use it to try jobwatch on real jobs: compare what it would have sent with what happened, then switch to sending."),
-			mint.Note("Alerts are written to " + jw.AlertsPath(o.jwOpts()) + " with the time, and printed, so cron mails them and a timer puts them in the journal."),
+		var about []mint.Row
+		about = append(about, wrapped("Shadow mode writes what the check would send, and sends nothing. Use it to try jobwatch on real jobs: compare what it would have sent with what happened, then switch to sending.", "")...)
+		about = append(about, wrapped("Alerts are written to "+jw.AlertsPath(o.jwOpts())+" with the time, and printed, so cron mails them and a timer puts them in the journal.", "")...)
+		about = append(about,
 			mint.Action(mint.ActionOpts{ID: "alerts", Label: "Alerts", Get: func() string { return "sent and shadow" },
-				OnActivate: func(ctx *mint.Ctx) { ctx.Push(Alerts(o)) }}),
-		}
+				OnActivate: func(ctx *mint.Ctx) { ctx.Push(Alerts(o)) }}))
 		s.Sections = []mint.Section{{Rows: rows}, {Rows: about}}
 	}
 	return o.withKeys(scr)
@@ -104,11 +104,11 @@ func Alerts(o Options) *mint.Screen {
 		all := jw.RecentAlerts(o.jwOpts(), 50)
 		var sent, shadow []mint.Row
 		for _, a := range all {
-			row := mint.Note(a.When.Local().Format("Mon 2 Jan 15:04") + "  " + a.Text)
+			rows := wrapped(a.When.Local().Format("Mon 2 Jan 15:04")+"  "+a.Text, "")
 			if a.Shadow {
-				shadow = append(shadow, row)
+				shadow = append(shadow, rows...)
 			} else {
-				sent = append(sent, row)
+				sent = append(sent, rows...)
 			}
 		}
 		if len(sent) == 0 {

@@ -160,13 +160,18 @@ func overviewCheck(o Options) []mint.Section {
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
 	}
 	alerts := o.recentAlerts(5)
+	// A pane is narrower than the terminal, so each alert is its time and
+	// its job here; the whole alert is on Alerts, one key away.
 	var recent []mint.Row
-	for _, a := range alerts {
-		line := a.When.Local().Format("15:04") + " " + a.Text
+	for i, a := range alerts {
+		job, _, _ := strings.Cut(a.Text, ":")
+		mark := "sent"
 		if a.Shadow {
-			line = a.When.Local().Format("15:04") + " ◌ " + a.Text
+			mark = "◌ shadow"
 		}
-		recent = append(recent, mint.Note(line))
+		recent = append(recent, mint.Action(mint.ActionOpts{ID: fmt.Sprintf("ov-al-%d", i), Label: a.When.Local().Format("15:04") + "  " + job,
+			Get:        func() string { return mark },
+			OnActivate: func(ctx *mint.Ctx) { ctx.Push(Alerts(o)) }}))
 	}
 	if len(recent) == 0 {
 		recent = []mint.Row{mint.Note("No alerts yet.")}
@@ -178,19 +183,22 @@ func overviewCheck(o Options) []mint.Section {
 
 // overviewBanner is the one thing most worth doing, or "" when all is well.
 func overviewBanner(rep health.Report, checkOn bool, jobs int) string {
-	var problems []string
+	var problems, names []string
 	for _, st := range rep.Statuses {
 		if st.Level == health.Problem {
 			problems = append(problems, st.Job+" is "+st.State)
+			names = append(names, st.Job)
 		}
 	}
 	switch {
 	case len(problems) == 1:
-		return "1 problem: " + problems[0]
+		return fitBanner("1 problem: "+problems[0], "1 problem: "+names[0])
 	case len(problems) > 1:
-		return fmt.Sprintf("%d problems: %s", len(problems), strings.Join(problems, ", "))
+		long := fmt.Sprintf("%d problems: %s", len(problems), strings.Join(problems, ", "))
+		short := fmt.Sprintf("%d problems: %s", len(problems), strings.Join(names, ", "))
+		return fitBanner(long, short, fmt.Sprintf("%d problems: %s and %d more", len(problems), names[0], len(names)-1))
 	case jobs > 0 && !checkOn:
-		return "The background check is off: nothing will alert you. Turn it on in Background check."
+		return fitBanner("The background check is off: nothing will alert you. Press c to turn it on.", "The check is off: nothing will alert you (c).")
 	}
 	return ""
 }
@@ -238,4 +246,16 @@ func plural(n int, w string) string {
 		return "1 " + w
 	}
 	return fmt.Sprintf("%d %ss", n, w)
+}
+
+// fitBanner is the first of the ways of saying it that fits on one line of
+// this terminal, or the last.
+func fitBanner(ways ...string) string {
+	room := termCols() - 6
+	for _, w := range ways {
+		if len([]rune(w)) <= room {
+			return w
+		}
+	}
+	return ways[len(ways)-1]
 }
