@@ -66,7 +66,7 @@ func Day(o Options) *mint.Screen {
 			mint.Note("█ usual run   ▓ slow runs   ─ gap before the next job   ┆ where the next job starts"))
 		s.Sections = []mint.Section{{Rows: rows}}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 // BarWidth is how wide the day's bar is drawn in a terminal of this size:

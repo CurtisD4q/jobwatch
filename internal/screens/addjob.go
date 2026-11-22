@@ -53,7 +53,7 @@ func AddJobs(o Options) *mint.Screen {
 		}
 		s.Sections = []mint.Section{{Rows: intro}, {Name: "Your crontab", Rows: rows}}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 func lineState(cl loom.CronLine) string {

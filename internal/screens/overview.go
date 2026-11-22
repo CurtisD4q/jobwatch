@@ -10,14 +10,12 @@ import (
 	"github.com/CurtisD4q/mint-loom/health"
 )
 
-const overviewHints = " ↑↓ move   ⏎ open   b back   q quit "
-
 // Overview is jobwatch's home: the jobs on the left, today in the middle
 // and the background check on the right, side by side; on a narrow
 // terminal they stack. The amber line says the one thing most worth doing,
 // and the footer says how things stand.
 func Overview(o Options) *mint.Screen {
-	s := &mint.Screen{Icon: "✦", Title: "Overview", TopTitle: "Jobs", TopWidth: 1.1, Hints: overviewHints, SectionSpacing: 1}
+	s := &mint.Screen{Icon: "✦", Title: "Overview", TopTitle: "Jobs", TopWidth: 1.1, Hints: keyHints, SectionSpacing: 1}
 	today := &mint.Pane{Title: "Today", Beside: true, Width: 0.9}
 	check := &mint.Pane{Title: "Background check", Beside: true, Width: 1.2}
 	s.Panes = []*mint.Pane{today, check}
@@ -38,7 +36,7 @@ func Overview(o Options) *mint.Screen {
 	check.Refresh = func(*mint.Pane) {}
 	s.Status = func() []mint.Badge { return o.badges() }
 	s.Poll = o.live()
-	return s
+	return o.withKeys(s)
 }
 
 // shortState is a job's state in a word or two, short enough never to be

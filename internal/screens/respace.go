@@ -79,7 +79,7 @@ func Respace(o Options) *mint.Screen {
 		about = append(about, wrapped("Nothing is changed. Copy a line and replace the old one with crontab -e, or move the timer by hand.", "")...)
 		s.Sections = []mint.Section{{Rows: top}, {Name: "Suggested moves", Rows: moves}, {Name: "Effect", Rows: about}}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 func shortDur(d time.Duration) string {

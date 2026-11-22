@@ -83,7 +83,7 @@ func BackgroundCheck(o Options) *mint.Screen {
 		}
 		s.Sections = []mint.Section{{Rows: rows}, {Rows: about}}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 func setModes(ctx *mint.Ctx, o Options, shadow, notify bool) {
@@ -119,5 +119,5 @@ func Alerts(o Options) *mint.Screen {
 		}
 		s.Sections = []mint.Section{{Name: "Sent", Rows: sent}, {Name: "Shadow: not sent", Rows: shadow}}
 	}
-	return scr
+	return o.withKeys(scr)
 }

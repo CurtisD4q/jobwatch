@@ -28,6 +28,8 @@ func Entries(o Options) []mint.HomeItem {
 			Open: func() *mint.Screen { return Import(o) }},
 		{Icon: "?", Label: "How this works", Desc: "What jobwatch does, in a few steps",
 			Open: func() *mint.Screen { return Guide(o) }},
+		{Icon: "⚙", Label: "Keys and settings", Desc: "The keys, where things are kept, and how it looks",
+			Open: func() *mint.Screen { return Settings(o) }},
 		{Icon: "!", Label: "Alerts", Desc: "What was sent, and what a shadow check would have sent",
 			Open: func() *mint.Screen { return Alerts(o) }},
 	}
@@ -74,7 +76,7 @@ func Jobs(o Options) *mint.Screen {
 		}
 		s.Sections = []mint.Section{{Name: "Jobs", Rows: rows}}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 // Evidence is one job's screen: every finding about it, with the numbers
@@ -132,7 +134,7 @@ func Evidence(o Options, name string) *mint.Screen {
 			}},
 		}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 // wrapped is text as notes wrapped to the terminal's width, each line after
