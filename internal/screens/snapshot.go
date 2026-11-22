@@ -44,6 +44,9 @@ type snapshot struct {
 
 	settingsAt time.Time
 	settings   jw.CheckSettings
+
+	alertsStamp string
+	alerts      []jw.Alert
 }
 
 func newSnapshot() *snapshot { return &snapshot{} }
@@ -121,12 +124,31 @@ func (o Options) checkSettings() jw.CheckSettings {
 	return s.settings
 }
 
+// recentAlerts are the newest n alerts, sent and shadow, read again only
+// when the health folder changes.
+func (o Options) recentAlerts(n int) []jw.Alert {
+	s := o.snap
+	if s == nil {
+		return jw.RecentAlerts(o.jwOpts(), n)
+	}
+	stamp := stampOf(o.Book.Dir, o.now())
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.alertsStamp != stamp {
+		s.alerts, s.alertsStamp = jw.RecentAlerts(o.jwOpts(), 50), stamp
+	}
+	if len(s.alerts) > n {
+		return s.alerts[:n]
+	}
+	return s.alerts
+}
+
 // changed says the screens' view of the history or the crontab is out of
 // date, after jobwatch itself changed one of them.
 func (o Options) changed() {
 	if s := o.snap; s != nil {
 		s.mu.Lock()
-		s.stamp, s.cronAt, s.settingsAt = "", time.Time{}, time.Time{}
+		s.stamp, s.cronAt, s.settingsAt, s.alertsStamp = "", time.Time{}, time.Time{}, ""
 		s.mu.Unlock()
 	}
 }

@@ -40,6 +40,7 @@ func main() {
 		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
 	}
 	o := screens.Options{Book: book, Program: exe}
+	screens.UsePalette()
 	app := &mint.App{
 		Title:   "✦ Jobwatch",
 		Version: Version,
@@ -107,7 +108,7 @@ func flagRest(args []string) []string {
 func openScreen(args []string) []string {
 	rest := append([]string{args[0]}, flagRest(args[1:])...)
 	if len(rest) == 1 {
-		rest = append(rest, "--screen", "Jobs")
+		rest = append(rest, "--screen", "Overview")
 	}
 	return rest
 }
