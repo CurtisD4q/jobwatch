@@ -1,0 +1,46 @@
+name: release
+
+# A release is made by pushing a tag such as v0.2.0. Only the person who
+# owns the repository can do that; nothing here runs for a pull request,
+# so the read token is never given to someone else's code.
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  GOPRIVATE: github.com/CurtisD4q/*
+
+permissions:
+  contents: write     # create the release and upload its files
+  id-token: write     # sign the build attestation
+  attestations: write # store it
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: Let Go read the Mint packs
+        run: git config --global url."https://x-access-token:${{ secrets.MINT_READ_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Check before building
+        run: |
+          test -z "$(gofmt -l .)"
+          go vet ./...
+          go test -race ./...
+      - name: Build the archives
+        run: VERSION="${GITHUB_REF_NAME#v}" scripts/dist.sh
+      - name: Attest how they were built
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*.tar.gz
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/SHA256SUMS \
+            --title "jobwatch ${GITHUB_REF_NAME#v}" --generate-notes --verify-tag

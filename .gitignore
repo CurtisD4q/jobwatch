@@ -4,3 +4,4 @@
 
 # A working copy of a sibling pack, if you build against one
 /vendor/
+/dist/

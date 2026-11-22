@@ -20,12 +20,22 @@ Both read one check of one history, so the same job shows the same state and the
 
 ## Install
 
+Download the archive for your machine from [Releases](https://github.com/CurtisD4q/jobwatch/releases), check it, and put `jobwatch` on your PATH:
+
 ```
-export GOPRIVATE='github.com/CurtisD4q/*'
-go install github.com/CurtisD4q/jobwatch/cmd/jobwatch@main
+v=0.2.0 arch=amd64        # or arm64
+curl -LO https://github.com/CurtisD4q/jobwatch/releases/download/v$v/jobwatch-$v-linux-$arch.tar.gz
+curl -LO https://github.com/CurtisD4q/jobwatch/releases/download/v$v/SHA256SUMS
+sha256sum --check --ignore-missing SHA256SUMS
+tar -xzf jobwatch-$v-linux-$arch.tar.gz
+install -m 755 jobwatch-$v-linux-$arch/jobwatch ~/.local/bin/
 ```
 
-Needs Go 1.21 or newer. The Mint packs it builds on are fetched by Go; CI needs a `MINT_READ_TOKEN` secret with read access to them.
+It is one static program with nothing else to install. Each archive also holds the README, `jobwatch.el` for Emacs, and the licences of everything built into it. To check that an archive was built from this repository by its release workflow, `gh attestation verify jobwatch-$v-linux-$arch.tar.gz --repo CurtisD4q/jobwatch`.
+
+Arch users can build the `jobwatch-bin` package from [`packaging/aur`](packaging/aur), and Gentoo users the ebuild in [`packaging/gentoo`](packaging/gentoo); both install the release archive.
+
+Building from source needs the Mint libraries it is built on, which are private, so only their owner can build it (`make build`, `make dist`).
 
 Run `jobwatch`. With no arguments it opens the job list.
 

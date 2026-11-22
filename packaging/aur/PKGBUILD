@@ -1,0 +1,26 @@
+# Maintainer: Curtis <noreply@github.com>
+# jobwatch from its release archive. After changing pkgver, run updpkgsums
+# (or copy the lines from the release's SHA256SUMS).
+pkgname=jobwatch-bin
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Are my backup and sync jobs still working, and will they keep working? A terminal app"
+arch=('x86_64' 'aarch64')
+url="https://github.com/CurtisD4q/jobwatch"
+license=('Apache-2.0')
+provides=('jobwatch')
+conflicts=('jobwatch')
+source_x86_64=("$url/releases/download/v$pkgver/jobwatch-$pkgver-linux-amd64.tar.gz")
+source_aarch64=("$url/releases/download/v$pkgver/jobwatch-$pkgver-linux-arm64.tar.gz")
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+
+package() {
+	local dir
+	dir=$(find "$srcdir" -maxdepth 1 -type d -name "jobwatch-$pkgver-linux-*" | head -n1)
+	install -Dm755 "$dir/jobwatch" "$pkgdir/usr/bin/jobwatch"
+	install -Dm644 "$dir/README.md" "$pkgdir/usr/share/doc/jobwatch/README.md"
+	install -Dm644 "$dir/jobwatch.el" "$pkgdir/usr/share/emacs/site-lisp/jobwatch.el"
+	install -Dm644 "$dir/LICENSE" "$pkgdir/usr/share/licenses/jobwatch/LICENSE"
+	cp -r "$dir/THIRD_PARTY" "$pkgdir/usr/share/licenses/jobwatch/THIRD_PARTY"
+}

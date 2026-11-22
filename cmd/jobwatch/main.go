@@ -17,8 +17,9 @@ import (
 	"github.com/CurtisD4q/mint-tools/run"
 )
 
-// Version is the app's own version.
-const Version = "0.1.0"
+// Version is the app's own version. A release sets it from its tag with
+// -ldflags "-X main.Version=…"; a plain build says what it is from.
+var Version = "0.1.0-dev"
 
 func main() {
 	exe, _ := os.Executable()
