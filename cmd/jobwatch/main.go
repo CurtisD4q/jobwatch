@@ -103,13 +103,13 @@ func flagRest(args []string) []string {
 	return out
 }
 
-// openScreen is the arguments Mint sees, with the job list asked for when
+// openScreen is the arguments Mint sees, with the menu asked for when
 // nothing was asked for. --dir is ours and left out, so `jobwatch --dir X`
 // still counts as no arguments.
 func openScreen(args []string) []string {
 	rest := append([]string{args[0]}, flagRest(args[1:])...)
 	if len(rest) == 1 {
-		rest = append(rest, "--screen", "Overview")
+		rest = append(rest, "--screen", "Menu")
 	}
 	return rest
 }

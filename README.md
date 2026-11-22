@@ -6,22 +6,26 @@ Most backup failures are slow and predictable: data grows, runs take longer, the
 
 A standalone terminal app in the Mint family, with [cairn](https://github.com/CurtisD4q/cairn) and susynth: one program, no daemon, no database. The same program records your jobs, checks them in the background, and shows how they are doing.
 
-![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png)
+![The menu: every screen grouped under Watch, Set up and Help, each with the key that opens it, and beside it the jobs, the check and the latest alert at a glance](screenshots/menu.png)
+
+jobwatch opens on the menu: every screen, the key that opens it from anywhere, and how things stand at a glance.
 
 ## Screenshots
 
 | | |
 |---|---|
-| ![A job's evidence: why it is overdue and failing, what it said, and its recent runs](screenshots/job.png) | ![The day: each job's usual run, its slow tail, and the gap before the next job starts](screenshots/day.png) |
-| **The evidence.** Open a job for every finding, with the numbers behind it, what the command said when it failed, and its runs. | **The day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. |
-| ![Add a job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) | ![The one change to the crontab, before and after, with how to put it back](screenshots/confirm.png) |
-| **Add a job.** Your crontab, line by line, and whether each is recorded. | **One change, shown first.** The line before and after, and how to undo it, before anything is written. |
-| ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) | ![How this works: what jobwatch is for, in five steps](screenshots/guide.png) |
-| **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. | **How this works.** A one-page guide, one key away on every screen. |
+| ![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png) | ![A job's evidence: why it is overdue and failing, what it said, and its recent runs](screenshots/job.png) |
+| **The overview.** The jobs worst first, today's usual starts, and the background check with its latest alerts. | **The evidence.** Open a job for every finding, with the numbers behind it, what the command said when it failed, and its runs. |
+| ![The day: each job's usual run, its slow tail, and the gap before the next job starts](screenshots/day.png) | ![Add a job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
+| **The day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add a job.** Your crontab, line by line, and whether each is recorded. |
+| ![The one change to the crontab, before and after, with how to put it back](screenshots/confirm.png) | ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) |
+| **One change, shown first.** The line before and after, and how to undo it, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
+| ![How this works: what jobwatch is for, in five steps](screenshots/guide.png) | |
+| **How this works.** A one-page guide, one key away on every screen. | |
 
 On a narrow terminal the panes stack, so it works over ssh from a phone:
 
-<img src="screenshots/phone.png" alt="The overview at 52 columns: jobs, today and the background check stacked" width="320">
+<img src="screenshots/phone.png" alt="The menu at 52 columns: the screens, then the jobs and the check at a glance, stacked" width="320">
 
 ## What it does
 
@@ -54,7 +58,7 @@ Building from source needs the Mint libraries it is built on, which are private,
 
 ## Getting started
 
-Run `jobwatch`. With no jobs yet, the overview lists the first steps:
+Run `jobwatch`. It opens on the menu; with no jobs yet, the amber line there says where to start, and the overview (`o`) lists the first steps:
 
 1. **Add a job** (`n`). Choose a line of your crontab. jobwatch shows the one change that records its runs, before and after, and makes it when you agree, with undo. The job keeps its schedule, and its output and exit code still reach cron, so cron still mails a failure.
 2. **Import history** (`i`). Read a timer's service from the journal (yours or the system's), or an rsync, rclone or cron log.
@@ -76,6 +80,7 @@ The same on every screen:
 
 | Key | Opens |
 |---|---|
+| `m` | Menu, the first screen |
 | `o` | Overview |
 | `d` | The day |
 | `a` | Alerts |

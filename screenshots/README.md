@@ -15,8 +15,9 @@ by hand. They show seeded runs, not anyone's real jobs.
 
 | File | Screen | Size |
 |---|---|---|
+| `menu.png` | Menu, the first screen | 100 × 26 |
+| `phone.png` | Menu | 52 × 44 |
 | `overview.png` | Overview | 100 × 26 |
-| `phone.png` | Overview | 52 × 46 |
 | `job.png` | a job (Enter on the first) | 100 × 40 |
 | `day.png` | The day | 100 × 18 |
 | `addjob.png` | Add a job | 100 × 18 |
