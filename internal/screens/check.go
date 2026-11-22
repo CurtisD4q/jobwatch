@@ -99,6 +99,7 @@ func setModes(ctx *mint.Ctx, o Options, shadow, notify bool) {
 // newest first.
 func Alerts(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "!", Title: "Alerts"}
+	scr.Poll = o.live()
 	scr.Refresh = func(s *mint.Screen) {
 		all := jw.RecentAlerts(o.jwOpts(), 50)
 		var sent, shadow []mint.Row

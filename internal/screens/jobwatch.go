@@ -35,6 +35,7 @@ func Entries(o Options) []mint.HomeItem {
 // selection.
 func Jobs(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "✦", Title: "Jobs"}
+	scr.Poll = o.live()
 	scr.Refresh = func(s *mint.Screen) {
 		_, rep, _, err := o.check()
 		if err != nil {
@@ -76,6 +77,7 @@ func Jobs(o Options) *mint.Screen {
 // behind it. It is the same for a job chosen from the list and from the day.
 func Evidence(o Options, name string) *mint.Screen {
 	scr := &mint.Screen{Icon: "✦", Title: name}
+	scr.Poll = o.live()
 	scr.Refresh = func(s *mint.Screen) {
 		_, rep, mutes, err := o.check()
 		if err != nil {
