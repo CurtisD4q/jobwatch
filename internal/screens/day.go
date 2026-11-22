@@ -34,8 +34,9 @@ func Day(o Options) *mint.Screen {
 		_, bars := health.DayTimeline(jobs, now)
 		// The name's own column, then a space, then the bar: the bar gets
 		// the rest of the terminal, so a wider window shows a wider day.
-		width := BarWidth(mint.TermSize())
-		rows := []mint.Row{mint.Note(strings.Repeat(" ", dayNameWidth+1) + dayAxis(width))}
+		indent, width := dayLayout(termCols())
+		pad := strings.Repeat(" ", indent)
+		rows := []mint.Row{mint.Note(pad + dayAxis(width))}
 		for _, b := range bars {
 			b := b
 			label := b.Name
@@ -51,22 +52,41 @@ func Day(o Options) *mint.Screen {
 					ctx.Push(Evidence(o, b.Name))
 				},
 			}))
-			rows = append(rows, mint.Label(mint.StyleBody, strings.Repeat(" ", dayNameWidth+1)+drawBar(b, width)))
+			rows = append(rows, mint.Label(mint.StyleBody, pad+drawBar(b, width)))
 			// What the bar cannot show: a gap too long to draw, or a job
 			// that never recorded how long it runs, so there was no run
 			// to draw at all.
 			if said := longGap(b); said != "" {
-				rows = append(rows, mint.Note(strings.Repeat(" ", dayNameWidth+1)+said))
+				rows = append(rows, wrapped(said, pad)...)
 			}
 		}
 		if len(bars) == 0 {
 			rows = append(rows, mint.Note("No job has enough runs to draw."))
 		}
-		rows = append(rows, mint.Spacer(),
-			mint.Note("█ usual run   ▓ slow runs   ─ gap before the next job   ┆ where the next job starts"))
+		rows = append(rows, mint.Spacer())
+		rows = append(rows, wrapped("█ usual run   ▓ slow runs   ─ gap before the next job   ┆ where the next job starts", "")...)
 		s.Sections = []mint.Section{{Rows: rows}}
 	}
 	return o.withKeys(scr)
+}
+
+// dayLayout is where the day's bars start and how wide they are in a
+// terminal this wide. A bar is drawn on the line under its job's name; on
+// a wide screen it starts after the name's column, so the bars line up
+// with the names, and on a narrow one it starts at the edge, so the day
+// is never cut off. Eight columns go to the frame, its margins and the scroll bar.
+func dayLayout(cols int) (indent, width int) {
+	if cols <= 0 {
+		cols = 80
+	}
+	content := cols - 8
+	if w := content - dayNameWidth - 1; w >= dayCols {
+		return dayNameWidth + 1, w
+	}
+	if content-1 < 24 {
+		return 1, 24
+	}
+	return 1, content - 1
 }
 
 // BarWidth is how wide the day's bar is drawn in a terminal of this size:

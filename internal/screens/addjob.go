@@ -22,9 +22,9 @@ func AddJobs(o Options) *mint.Screen {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note(err.Error())}}}
 			return
 		}
-		intro := []mint.Row{mint.Note("Choose a line of your crontab to record its runs. It keeps its schedule, and its output and exit code still reach cron.")}
+		intro := wrapped("Choose a line of your crontab to record its runs. It keeps its schedule, and its output and exit code still reach cron.", "")
 		if o.Program == "" {
-			intro = append(intro, mint.Note("This program does not know its own path, so it cannot change your crontab. Lines can still be recorded by hand."))
+			intro = append(intro, wrapped("This program does not know its own path, so it cannot change your crontab. Lines can still be recorded by hand.", "")...)
 		}
 		var rows []mint.Row
 		for i, cl := range lines {
