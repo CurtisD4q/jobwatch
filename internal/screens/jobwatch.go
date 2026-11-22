@@ -24,6 +24,10 @@ func Entries(o Options) []mint.HomeItem {
 			Open: func() *mint.Screen { return AddJobs(o) }},
 		{Icon: "⏲", Label: "Background check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
 			Open: func() *mint.Screen { return BackgroundCheck(o) }},
+		{Icon: "⇣", Label: "Import history", Desc: "Runs from the journal, or an rsync, rclone or cron log",
+			Open: func() *mint.Screen { return Import(o) }},
+		{Icon: "?", Label: "How this works", Desc: "What jobwatch does, in a few steps",
+			Open: func() *mint.Screen { return Guide(o) }},
 		{Icon: "!", Label: "Alerts", Desc: "What was sent, and what a shadow check would have sent",
 			Open: func() *mint.Screen { return Alerts(o) }},
 	}

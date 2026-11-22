@@ -18,17 +18,36 @@ import (
 // see: start, finish, exit status and a size when a line states one.
 // The messages themselves are not stored.
 func ImportJournal(o Options, unit, since string) (int, error) {
+	return ImportJournalFrom(o, unit, since, false)
+}
+
+// journalSince is since as journalctl reads it. A span such as "90d" is
+// how far back to go, which journalctl writes "-90d"; it refuses "90d"
+// itself ("Failed to parse timestamp"). A date or "yesterday" passes on.
+func journalSince(since string) string {
+	since = strings.TrimSpace(since)
+	if since == "" {
+		since = "90d"
+	}
+	if since[0] >= '0' && since[0] <= '9' && !strings.ContainsAny(since, "-:") {
+		return "-" + since
+	}
+	return since
+}
+
+// ImportJournalFrom is ImportJournal, reading the person's own journal
+// (journalctl --user) when user is true: a user timer's service is there.
+func ImportJournalFrom(o Options, unit, since string, user bool) (int, error) {
 	unit = strings.TrimSpace(unit)
 	if unit == "" {
 		return 0, fmt.Errorf("give --unit, the service to read")
 	}
-	if since == "" {
-		since = "90d"
+	argv := []string{"journalctl"}
+	if user {
+		argv = append(argv, "--user")
 	}
-	r := o.book().Exec.Run(context.Background(), action.Pipeline{{
-		Argv:    []string{"journalctl", "-u", unit, "--since", since, "--no-pager", "-o", "short-iso"},
-		Timeout: 30 * time.Second,
-	}})
+	argv = append(argv, "-u", unit, "--since="+journalSince(since), "--no-pager", "-o", "short-iso")
+	r := o.book().Exec.Run(context.Background(), action.Pipeline{{Argv: argv, Timeout: 30 * time.Second}})
 	if r.Err != nil {
 		return 0, r.Err
 	}
@@ -80,12 +99,13 @@ func importCmd(args []string, o Options) int {
 		fs := newFlags("import journal")
 		unitFlag := fs.String("unit", "", "")
 		sinceFlag := fs.String("since", "", "")
+		userFlag := fs.Bool("user", false, "")
 		if words, err := parse(fs, args[1:]); err != nil || len(words) > 0 || *unitFlag == "" {
-			fmt.Fprintln(o.err(), "use: "+o.name()+" import journal --unit UNIT [--since 90d]")
+			fmt.Fprintln(o.err(), "use: "+o.name()+" import journal --unit UNIT [--since 90d] [--user]")
 			return 2
 		}
 		unit, since := *unitFlag, *sinceFlag
-		n, err := ImportJournal(o, unit, since)
+		n, err := ImportJournalFrom(o, unit, since, *userFlag)
 		if err != nil {
 			fmt.Fprintln(o.err(), err)
 			return 1

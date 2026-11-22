@@ -77,6 +77,7 @@ func overviewJobs(o Options, rep health.Report) []mint.Section {
 	}
 	more := []mint.Row{
 		mint.Action(mint.ActionOpts{ID: "ov-add", Label: "+ Add a job", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "ov-import", Label: "⇣ Import history", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
 	}
 	secs := []mint.Section{{Rows: rows}, {Rows: more}}
 	for _, st := range statuses {
@@ -90,11 +91,12 @@ func overviewJobs(o Options, rep health.Report) []mint.Section {
 
 // firstSteps are the jobs pane when there are no jobs yet.
 func firstSteps(o Options) []mint.Section {
-	return []mint.Section{{Name: "No jobs yet", Rows: append(wrapped("jobwatch watches jobs it has recorded. Start here:", ""),
+	return []mint.Section{{Name: "No jobs yet", Rows: append(append(wrapped("jobwatch watches jobs it has recorded. Start here:", ""),
 		mint.Action(mint.ActionOpts{ID: "fs-add", Label: "1. Add a job from your crontab", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
-		mint.Action(mint.ActionOpts{ID: "fs-check", Label: "2. Turn on the check, in shadow", OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
-		mint.Note("Or put "+o.command()+" record NAME -- in front of a command."),
-	)}}
+		mint.Action(mint.ActionOpts{ID: "fs-import", Label: "2. Import history", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "fs-check", Label: "3. Turn on the check, in shadow", OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "fs-guide", Label: "How this works", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Guide(o)) }}),
+	), wrapped("Or put "+o.command()+" record NAME -- in front of a command.", "")...)}}
 }
 
 // localStart is a bar's usual start (minutes after midnight, UTC) as a

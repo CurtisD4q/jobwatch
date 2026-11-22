@@ -123,7 +123,7 @@ func usage(name string) string {
 {cmd} forecast [--json]
 {cmd} schedule SPEC [--json] [--on | --undo]
 {cmd} check [--json] [--shadow] [--file PATH] [--log PATH] [--notify]
-{cmd} import journal --unit UNIT [--since 90d]
+{cmd} import journal --unit UNIT [--since 90d] [--user]
 {cmd} import rclone|rsync|cron --name JOB FILE
 {cmd} respace [--window 2h] [--json]
 
