@@ -87,7 +87,7 @@ The false-alarm rate and the detection of planted faults are measured against a 
 
 ## Built from
 
-Jobwatch is a program over [mint-loom](https://github.com/CurtisD4q/mint-loom)'s health checks, with [mint-kit](https://github.com/CurtisD4q/mint-kit) for the interface. The checks, the simulator and the scorecard live in mint-loom. jobwatch carries mint-loom's `mint-jw` commands itself, so there is nothing else to install.
+Jobwatch is a program over [mint-loom](https://github.com/CurtisD4q/mint-loom)'s recording and health checks, with [mint-kit](https://github.com/CurtisD4q/mint-kit) for the interface. The checks, the simulator and the scorecard live in mint-loom; jobwatch's own commands (`internal/jw`) and screens (`internal/screens`) live here. There is nothing else to install.
 
 ## Also in Emacs
 
