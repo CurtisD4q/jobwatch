@@ -23,8 +23,8 @@ func AddJobs(o Options) *mint.Screen {
 			return
 		}
 		intro := wrapped("Choose a line of your crontab to record its runs. It keeps its schedule, and its output and exit code still reach cron.", "")
-		if o.Program == "" {
-			intro = append(intro, wrapped("This program does not know its own path, so it cannot change your crontab. Lines can still be recorded by hand.", "")...)
+		if why := o.cannotChange(); why != "" {
+			intro = append(intro, wrapped(capital(why)+".", "")...)
 		}
 		var rows []mint.Row
 		for i, cl := range lines {
@@ -40,8 +40,8 @@ func AddJobs(o Options) *mint.Screen {
 					case cl.Shell != "":
 						ctx.Message("Not recorded", "This line cannot be recorded as it is: "+cl.Shell+".\n\n"+
 							"Cron runs the line with /bin/sh, and a recorded command runs without a shell. Put the command in a script, schedule the script, and record that line.")
-					case o.Program == "":
-						ctx.ToastError("this program does not know its own path")
+					case o.cannotChange() != "":
+						ctx.Message("Cannot record from here", capital(o.cannotChange())+".")
 					default:
 						startRecording(ctx, o, cl)
 					}

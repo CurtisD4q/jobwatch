@@ -522,3 +522,15 @@ func appendRuns(t *testing.T, dir, name string, runs ...loom.Run) {
 		f.Write(append(b, '\n'))
 	}
 }
+
+// A history opened with --dir is not the one cron lines record into, so
+// jobwatch will not schedule the check from it.
+func TestNoScheduleFromElsewhere(t *testing.T) {
+	o := Options{Dir: t.TempDir(), Home: t.TempDir(), Program: "/usr/local/bin/jobwatch", Exec: run.Local{}}
+	if _, err := ScheduleCheck(o, "0 * * * *"); err == nil || !strings.Contains(err.Error(), "--dir") {
+		t.Fatalf("scheduled from another folder: %v", err)
+	}
+	if Elsewhere(o.Dir, o.Dir+"/") != "" || Elsewhere(o.Dir, "") != "" {
+		t.Fatal("the same folder counted as elsewhere")
+	}
+}

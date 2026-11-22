@@ -37,9 +37,9 @@ func main() {
 	// A command such as `jobwatch record NAME -- restic backup /data` runs
 	// and exits. jw reads --dir itself.
 	if isCommand(flagRest(os.Args[1:])) {
-		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
+		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch", Home: loom.DefaultDir()}))
 	}
-	o := screens.Options{Book: book, Program: exe, Version: Version}
+	o := screens.Options{Book: book, Program: exe, Home: loom.DefaultDir(), Version: Version}
 	screens.UsePalette()
 	app := &mint.App{
 		Title:   "✦ Jobwatch",

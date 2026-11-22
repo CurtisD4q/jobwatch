@@ -10,7 +10,7 @@ import (
 )
 
 func (o Options) jwOpts() jw.Options {
-	return jw.Options{Dir: o.Book.Dir, Exec: o.Book.Exec, Program: o.Program, Now: o.Book.Now}
+	return jw.Options{Dir: o.Book.Dir, Exec: o.Book.Exec, Program: o.Program, Home: o.Home, Now: o.Book.Now}
 }
 
 // BackgroundCheck turns the check that sends alerts on and off, and sets
@@ -47,8 +47,8 @@ func BackgroundCheck(o Options) *mint.Screen {
 						o.do(ctx, a)
 						return
 					}
-					if o.Program == "" {
-						ctx.ToastError("this program does not know its own path, so it cannot schedule itself")
+					if why := o.cannotChange(); why != "" {
+						ctx.Message("Cannot schedule from here", capital(why)+".")
 						return
 					}
 					def := cs.Schedule
