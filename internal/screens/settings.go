@@ -19,12 +19,12 @@ const (
 // job, and delete its history.
 func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mute) []mint.Row {
 	var rows []mint.Row
-	seen := map[health.Kind]bool{}
+	seen := map[string]bool{}
 	for _, f := range fs {
-		if f.Job != name || f.Level < health.Warn || seen[f.Kind] {
+		if f.Job != name || f.Level < health.Warn || seen[f.ID()] {
 			continue
 		}
-		seen[f.Kind] = true
+		seen[f.ID()] = true
 		f := f
 		state := "sent"
 		if ok, until := health.Muted(mutes, f); ok {
@@ -33,7 +33,11 @@ func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mu
 				state = "muted to " + until.Local().Format("2 Jan 15:04")
 			}
 		}
-		rows = append(rows, mint.Action(mint.ActionOpts{ID: "mute-" + string(f.Kind), Label: "Alerts about " + string(f.Kind),
+		label := "Alerts about " + string(f.Kind)
+		if f.Other != "" {
+			label += " (" + f.Other + ")"
+		}
+		rows = append(rows, mint.Action(mint.ActionOpts{ID: "mute-" + f.ID(), Label: label,
 			Get: func() string { return state },
 			OnActivate: func(ctx *mint.Ctx) {
 				pick, ok := ctx.Choose(string(f.Kind)+": "+f.Says, []string{muteDay, muteWeek, muteFor, muteLift}, muteChose)
@@ -44,13 +48,13 @@ func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mu
 				var err error
 				switch pick {
 				case muteDay:
-					err = health.SetMute(o.Book.Dir, health.Mute{Job: name, Kind: f.Kind, Until: now.Add(24 * time.Hour)}, now)
+					err = health.SetMute(o.Book.Dir, health.MuteOf(f, now.Add(24*time.Hour)), now)
 				case muteWeek:
-					err = health.SetMute(o.Book.Dir, health.Mute{Job: name, Kind: f.Kind, Until: now.Add(7 * 24 * time.Hour)}, now)
+					err = health.SetMute(o.Book.Dir, health.MuteOf(f, now.Add(7*24*time.Hour)), now)
 				case muteFor:
-					err = health.SetMute(o.Book.Dir, health.Mute{Job: name, Kind: f.Kind}, now)
+					err = health.SetMute(o.Book.Dir, health.MuteOf(f, time.Time{}), now)
 				case muteLift:
-					err = health.Unmute(o.Book.Dir, name, f.Kind, now)
+					err = health.Unmute(o.Book.Dir, health.MuteOf(f, time.Time{}), now)
 				}
 				if err != nil {
 					ctx.ToastError(err.Error())

@@ -1,6 +1,7 @@
 package screens
 
 import (
+	mint "github.com/CurtisD4q/mint-kit"
 	"strings"
 	"testing"
 	"time"
@@ -69,5 +70,32 @@ func TestEvidenceSettings(t *testing.T) {
 	frame = text(Evidence(Options{Book: b}, "nightly"))
 	if !strings.Contains(frame, "problem (muted)") || !strings.Contains(frame, "muted") {
 		t.Fatalf("not shown as muted:\n%s", frame)
+	}
+}
+
+// Running into b and running into c are muted apart.
+func TestSettingsRowPerFinding(t *testing.T) {
+	b := &loom.Book{Dir: t.TempDir(), Exec: run.Local{}}
+	fs := []health.Finding{
+		{Job: "a", Kind: health.IntoNext, Other: "b", Level: health.Warn},
+		{Job: "a", Kind: health.IntoNext, Other: "c", Level: health.Warn},
+		{Job: "a", Kind: health.IntoNext, Other: "c", Level: health.Warn}, // the same again
+	}
+	if err := health.SetMute(b.Dir, health.MuteOf(fs[0], time.Time{}), time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	rows := settingsRows(Options{Book: b}, "a", fs, health.Mutes(b.Dir, time.Now()))
+	scr := &mint.Screen{Sections: []mint.Section{{Rows: rows}}}
+	frame := text(scr)
+	for _, w := range []string{"Alerts about into-next (b)", "Alerts about into-next (c)", "Delete its history"} {
+		if !strings.Contains(frame, w) {
+			t.Errorf("lacks %q:\n%s", w, frame)
+		}
+	}
+	if strings.Count(frame, "Alerts about") != 2 {
+		t.Fatalf("not one row a finding:\n%s", frame)
+	}
+	if !strings.Contains(frame, "muted") || strings.Count(frame, "sent") < 1 {
+		t.Fatalf("b muted, c sent:\n%s", frame)
 	}
 }
