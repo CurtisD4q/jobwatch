@@ -156,6 +156,9 @@ func overviewCheck(o Options) []mint.Section {
 	last := "has not run"
 	if r, ok := o.checkLastRun(); ok {
 		last = ago(o.now().Sub(r.Start)) + " ago"
+		if last == "now ago" {
+			last = "just now"
+		}
 		if !r.OK && r.Skip == "" {
 			last = "failed " + last
 		}
