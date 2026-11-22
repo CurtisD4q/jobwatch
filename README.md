@@ -10,7 +10,7 @@ A standalone terminal app, in the Mint family with [cairn](https://github.com/Cu
 
 ![The job list](screenshots/jobs.png)
 
-**The job list** — one word a job: `fine`, `overdue`, `failing`, `slowing`, `overrunning`, `new`, `running`, `lost`, `changed`. Next to it, when it last succeeded, and the worst finding. Open a job and you get the evidence: every finding about it, with the runs, the numbers and the test used.
+**The job list** — one word a job: `fine`, `overdue`, `failing`, `slowing`, `overrunning`, `new`, `running`, `lost`, `changed`. Next to it, when it last succeeded, and the worst finding. Open a job and you get the evidence: every finding about it with the numbers and the test used, then its recent runs (a line of their lengths, and each run's time, length, size and result; a failed run opens with the end of what it printed).
 
 ![The day](screenshots/day.png)
 
@@ -47,9 +47,17 @@ jobwatch import journal --unit UNIT  read history jobwatch did not record
 jobwatch respace                     suggest start times; nothing is applied
 ```
 
-## Recording a job
+## Adding a job
 
-Put `jobwatch record` in front of a crontab line. The command runs as given, its output and exit code pass straight through, so cron still mails a failure.
+**Add a job** lists your crontab. Choose a line, give it a name, and jobwatch shows the one line it will change, before and after; you agree, and it is changed, with undo. The job keeps its schedule, and cron still sees its output and exit code. A line that only works through the shell (a pipe, a redirect, `&&`, `$VARS`) is not changed: put the command in a script and record the script.
+
+## The background check
+
+**Background check** turns on the check that sends alerts, as a timer or a crontab line (shown, agreed and undoable like any change). **Shadow mode** writes what it would send and sends nothing, so you can try jobwatch on real jobs first; **desktop notifications** can be turned on too. **Alerts** lists what was sent and what a shadow check would have sent.
+
+## Recording a job by hand
+
+Or put `jobwatch record` in front of a crontab line yourself. The command runs as given, its output and exit code pass straight through, so cron still mails a failure.
 
 ```
 30 2 * * *  jobwatch record nightly-backup -- restic backup /data
