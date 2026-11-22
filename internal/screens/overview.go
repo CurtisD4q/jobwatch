@@ -153,8 +153,11 @@ func overviewCheck(o Options) []mint.Section {
 	if cs.Shadow {
 		mode = "shadow"
 	}
+	last := o.checkLastText()
 	rows := []mint.Row{
 		mint.Action(mint.ActionOpts{ID: "ov-check", Label: "Check", Get: func() string { return state },
+			OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "ov-last", Label: "Last ran", Get: func() string { return last },
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
 		mint.Action(mint.ActionOpts{ID: "ov-mode", Label: "Mode", Get: func() string { return mode },
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
@@ -258,4 +261,21 @@ func fitBanner(ways ...string) string {
 		}
 	}
 	return ways[len(ways)-1]
+}
+
+// checkLastText is when the background check last ran, in words: "has not
+// run", "just now", "12 min ago", or "failed 12 min ago".
+func (o Options) checkLastText() string {
+	r, ok := o.checkLastRun()
+	if !ok {
+		return "has not run"
+	}
+	last := ago(o.now().Sub(r.Start)) + " ago"
+	if last == "now ago" {
+		last = "just now"
+	}
+	if !r.OK && r.Skip == "" {
+		last = "failed " + last
+	}
+	return last
 }

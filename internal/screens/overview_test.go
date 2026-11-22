@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/CurtisD4q/jobwatch/internal/jw"
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
 	"github.com/CurtisD4q/mint-loom/health"
@@ -94,5 +95,29 @@ func TestOverviewBannerFits(t *testing.T) {
 	got := overviewBanner(many, true, 3)
 	if len([]rune(got)) > 46 || !strings.HasPrefix(got, "3 problems: nightly-backup") {
 		t.Fatalf("%q (%d)", got, len([]rune(got)))
+	}
+}
+
+// The background check's own recipe is jobwatch watching, not one of the
+// person's jobs: it is not listed, and the check's pane says when it ran.
+func TestCheckIsNotAJob(t *testing.T) {
+	b := &loom.Book{Dir: t.TempDir(), Exec: tabExec{}}
+	o := Options{Book: b, snap: newSnapshot(), Program: "/usr/local/bin/jobwatch"}
+	loom.HandleArgs(b, []string{loom.RecordFlag, "backup", "--", "true"})
+	if _, err := jw.ScheduleCheck(o.jwOpts(), "0 * * * *"); err != nil {
+		t.Fatal(err)
+	}
+	_, rep, _, _ := o.check()
+	for _, st := range rep.Statuses {
+		if st.Job == jw.CheckRecipe {
+			t.Fatal("the check is listed as a job")
+		}
+	}
+	frame := overviewText(o)
+	if strings.Contains(frame, jw.CheckRecipe) || !strings.Contains(frame, "Last ran") || !strings.Contains(frame, "has not run") {
+		t.Fatalf("%s", frame)
+	}
+	if strings.Contains(text(Jobs(o)), jw.CheckRecipe) {
+		t.Fatal("the check is on the Jobs list")
 	}
 }

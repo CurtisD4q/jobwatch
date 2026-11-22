@@ -38,9 +38,9 @@ func main() {
 	// A command such as `jobwatch record NAME -- restic backup /data` runs
 	// and exits. jw reads --dir itself.
 	if isCommand(flagRest(os.Args[1:])) {
-		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
+		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch", Home: loom.DefaultDir()}))
 	}
-	o := screens.Options{Book: book, Program: exe, Version: Version}
+	o := screens.Options{Book: book, Program: exe, Home: loom.DefaultDir(), Version: Version}
 	screens.UsePalette()
 	app := &mint.App{
 		Title:   "✦ Jobwatch",
@@ -103,13 +103,13 @@ func flagRest(args []string) []string {
 	return out
 }
 
-// openScreen is the arguments Mint sees, with the job list asked for when
+// openScreen is the arguments Mint sees, with the menu asked for when
 // nothing was asked for. --dir is ours and left out, so `jobwatch --dir X`
 // still counts as no arguments.
 func openScreen(args []string) []string {
 	rest := append([]string{args[0]}, flagRest(args[1:])...)
 	if len(rest) == 1 {
-		rest = append(rest, "--screen", "Overview")
+		rest = append(rest, "--screen", "Menu")
 	}
 	return rest
 }

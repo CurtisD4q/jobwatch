@@ -14,6 +14,8 @@ func Entries(o Options) []mint.HomeItem {
 		o.snap = newSnapshot()
 	}
 	return []mint.HomeItem{
+		{Icon: "✦", Label: "Menu", Desc: "Every screen, with its key, and how things stand",
+			Open: func() *mint.Screen { return Menu(o) }},
 		{Icon: "✦", Label: "Overview", Desc: "The jobs, today, and the background check, side by side",
 			Open: func() *mint.Screen { return Overview(o) }},
 		{Icon: "✦", Label: "Jobs", Desc: "Each job in a word, with the last success and the worst finding",

@@ -58,6 +58,9 @@ func ScheduleCheck(o Options, spec string) (action.Action, error) {
 	if prog == "" {
 		return action.Action{}, errors.New("jobwatch does not know its own path, so it cannot schedule itself")
 	}
+	if why := Elsewhere(o.Dir, o.Home); why != "" {
+		return action.Action{}, errors.New(why)
+	}
 	b := o.book()
 	prev := ReadCheck(o)
 	r := loom.Recipe{

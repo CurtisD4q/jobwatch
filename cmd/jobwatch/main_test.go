@@ -8,10 +8,10 @@ import (
 func TestOpenScreen(t *testing.T) {
 	cases := []struct{ in, want []string }{
 		// No arguments opens the job list rather than the menu.
-		{[]string{"jobwatch"}, []string{"jobwatch", "--screen", "Overview"}},
+		{[]string{"jobwatch"}, []string{"jobwatch", "--screen", "Menu"}},
 		// --dir is ours: it does not count as asking for a screen.
-		{[]string{"jobwatch", "--dir", "/tmp/x"}, []string{"jobwatch", "--screen", "Overview"}},
-		{[]string{"jobwatch", "--dir=/tmp/x"}, []string{"jobwatch", "--screen", "Overview"}},
+		{[]string{"jobwatch", "--dir", "/tmp/x"}, []string{"jobwatch", "--screen", "Menu"}},
+		{[]string{"jobwatch", "--dir=/tmp/x"}, []string{"jobwatch", "--screen", "Menu"}},
 		// A screen asked for is left alone, in either form, wherever it is.
 		{[]string{"jobwatch", "--screen", "The day"}, []string{"jobwatch", "--screen", "The day"}},
 		{[]string{"jobwatch", "--dir", "/tmp/x", "--screen", "The day"},

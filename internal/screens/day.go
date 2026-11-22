@@ -152,8 +152,12 @@ func paint(bar []rune, from, to float64, ch rune) {
 		return
 	}
 	w := 1440.0 / float64(len(bar))
-	first := int(from / w)
-	last := int((to - 0.001) / w)
+	// A start read back from the runs is 239.99999 minutes as often as it
+	// is 240, and without the nudge it lands a column early, so a one-minute
+	// mark would take two.
+	const nudge = 1e-6
+	first := int(from/w + nudge)
+	last := int((to-0.001)/w + nudge)
 	if last < first {
 		last = first
 	}
