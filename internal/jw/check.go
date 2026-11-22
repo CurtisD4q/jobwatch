@@ -13,13 +13,17 @@ import (
 )
 
 func check(args []string, o Options) int {
-	file, args := take(args, "--file")
-	logPath, args := take(args, "--log")
-	js, bad := flags(args, map[string]bool{"--json": false, "--shadow": false, "--notify": false})
-	if bad || len(remain(args)) > 0 {
+	fs := newFlags("check")
+	file := fs.String("file", "", "")
+	logPath := fs.String("log", "", "")
+	asJSON := fs.Bool("json", false, "")
+	shadow := fs.Bool("shadow", false, "")
+	notify := fs.Bool("notify", false, "")
+	if words, err := parse(fs, args); err != nil || len(words) > 0 {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}
+	js := map[string]bool{"--json": *asJSON, "--shadow": *shadow, "--notify": *notify}
 	_, rep, err := load(o)
 	if err != nil {
 		fmt.Fprintln(o.err(), err)
@@ -50,15 +54,15 @@ func check(args []string, o Options) int {
 		}
 		return exitOf(rep)
 	}
-	if file != "" {
-		if err := appendLines(file, lines); err != nil {
+	if *file != "" {
+		if err := appendLines(*file, lines); err != nil {
 			fmt.Fprintln(o.err(), err)
 			return 1
 		}
 	}
-	if logPath != "" {
+	if *logPath != "" {
 		// the same lines, each with the time in front, for a history
-		if err := appendLines(logPath, stampLines(o.now(), lines)); err != nil {
+		if err := appendLines(*logPath, stampLines(o.now(), lines)); err != nil {
 			fmt.Fprintln(o.err(), err)
 			return 1
 		}
@@ -80,7 +84,7 @@ func check(args []string, o Options) int {
 	for _, l := range lines {
 		fmt.Fprintln(o.out(), l)
 	}
-	if file == "" && logPath == "" && !js["--notify"] && !js["--json"] && len(lines) == 0 {
+	if *file == "" && *logPath == "" && !js["--notify"] && !js["--json"] && len(lines) == 0 {
 		fmt.Fprintln(o.out(), "Nothing to alert on.")
 	}
 	return exitOf(rep)

@@ -2,7 +2,6 @@ package jw
 
 import (
 	"fmt"
-	"strings"
 
 	loom "github.com/CurtisD4q/mint-loom"
 )
@@ -32,45 +31,24 @@ func record(args []string, o Options) int {
 // splitRecord reads "NAME [--quiet] -- command" and "--name NAME [--quiet] -- command".
 // The name is either the one positional word, or --name, not both.
 func splitRecord(args []string) (name string, quiet bool, cmd []string, ok bool) {
-	var positional []string
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if a == "--" {
-			cmd = args[i+1:]
-			break
-		}
-		switch {
-		case a == "--quiet":
-			quiet = true
-		case a == "--name" || strings.HasPrefix(a, "--name="):
-			val := strings.TrimPrefix(a, "--name=")
-			if a == "--name" {
-				if i+1 >= len(args) || args[i+1] == "--" || strings.HasPrefix(args[i+1], "-") {
-					return "", false, nil, false
-				}
-				i++
-				val = args[i]
-			}
-			if val == "" || name != "" {
-				return "", false, nil, false
-			}
-			name = val
-		case strings.HasPrefix(a, "-"):
-			return "", false, nil, false
-		default:
-			positional = append(positional, a)
-		}
-	}
-	if len(cmd) == 0 {
+	before, cmd, dashed := split(args)
+	if !dashed || len(cmd) == 0 {
 		return "", false, nil, false
 	}
-	if name == "" {
-		if len(positional) != 1 {
-			return "", false, nil, false
-		}
-		name = positional[0]
-	} else if len(positional) != 0 {
+	fs := newFlags("record")
+	nameFlag := fs.String("name", "", "")
+	quietFlag := fs.Bool("quiet", false, "")
+	words, err := parse(fs, before)
+	if err != nil {
 		return "", false, nil, false
 	}
-	return name, quiet, cmd, true
+	switch {
+	case *nameFlag != "" && len(words) == 0:
+		name = *nameFlag
+	case *nameFlag == "" && len(words) == 1:
+		name = words[0]
+	default:
+		return "", false, nil, false
+	}
+	return name, *quietFlag, cmd, true
 }

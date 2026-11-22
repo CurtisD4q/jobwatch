@@ -82,3 +82,17 @@ func TestIsCommand(t *testing.T) {
 		t.Error("--dir in front of a command hid it")
 	}
 }
+
+// Nothing after "--" is jobwatch's: it is the recorded command's own.
+func TestDirStopsAtDashDash(t *testing.T) {
+	args := []string{"record", "sync", "--", "rsync", "--dir", "/x", "-a"}
+	if d := flagDir(args); d != "" {
+		t.Fatalf("took %q from the command", d)
+	}
+	if got := flagRest(args); !reflect.DeepEqual(got, args) {
+		t.Fatalf("%q", got)
+	}
+	if d := flagDir(append([]string{"--dir", "/data"}, args...)); d != "/data" {
+		t.Fatal(d)
+	}
+}

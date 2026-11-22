@@ -84,7 +84,7 @@ func Main(args []string, o Options) int {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}
-	dir, args := take(args, "--dir")
+	dir, args := takeDir(args)
 	if dir != "" {
 		o.Dir = dir
 	}
@@ -151,60 +151,12 @@ func writeJSON(o Options, v any) int {
 	return 0
 }
 
-// flags reports which of known were present. An unknown flag is bad.
-func flags(args []string, known map[string]bool) (map[string]bool, bool) {
-	got := map[string]bool{}
-	for _, a := range args {
-		if !strings.HasPrefix(a, "--") {
-			continue
-		}
-		name := a
-		if i := strings.IndexByte(a, '='); i >= 0 {
-			name = a[:i]
-		}
-		if _, ok := known[name]; !ok {
-			return nil, true
-		}
-		got[name] = true
+// jsonFlag reads a command whose only flag is --json, and no words.
+func jsonFlag(args []string) (map[string]bool, bool) {
+	fs := newFlags("json")
+	asJSON := fs.Bool("json", false, "")
+	if words, err := parse(fs, args); err != nil || len(words) > 0 {
+		return nil, false
 	}
-	return got, false
-}
-
-func remain(args []string) []string {
-	var out []string
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if strings.HasPrefix(a, "--") {
-			if !strings.Contains(a, "=") && i+1 < len(args) && !strings.HasPrefix(args[i+1], "--") && takesValue(a) {
-				i++
-			}
-			continue
-		}
-		out = append(out, a)
-	}
-	return out
-}
-
-func takesValue(flag string) bool {
-	return flag == "--dir" || flag == "--file" || flag == "--log"
-}
-
-// take removes --name value or --name=value.
-func take(args []string, name string) (string, []string) {
-	var rest []string
-	val := ""
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		if a == name && i+1 < len(args) {
-			val = args[i+1]
-			i++
-			continue
-		}
-		if strings.HasPrefix(a, name+"=") {
-			val = strings.TrimPrefix(a, name+"=")
-			continue
-		}
-		rest = append(rest, a)
-	}
-	return val, rest
+	return map[string]bool{"--json": *asJSON}, true
 }

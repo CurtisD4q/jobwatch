@@ -83,8 +83,8 @@ func asJSON(jobs []health.Job, rep health.Report, evidence bool) reportJSON {
 }
 
 func report(args []string, o Options) int {
-	js, bad := flags(args, map[string]bool{"--json": false})
-	if bad {
+	js, ok := jsonFlag(args)
+	if !ok {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}
@@ -120,8 +120,8 @@ func report(args []string, o Options) int {
 }
 
 func forecast(args []string, o Options) int {
-	js, bad := flags(args, map[string]bool{"--json": false})
-	if bad {
+	js, ok := jsonFlag(args)
+	if !ok {
 		fmt.Fprintln(o.err(), usage(o.name()))
 		return 2
 	}

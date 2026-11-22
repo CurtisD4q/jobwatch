@@ -77,8 +77,14 @@ func importCmd(args []string, o Options) int {
 	}
 	switch args[0] {
 	case "journal":
-		unit, _ := take(args[1:], "--unit")
-		since, _ := take(args[1:], "--since")
+		fs := newFlags("import journal")
+		unitFlag := fs.String("unit", "", "")
+		sinceFlag := fs.String("since", "", "")
+		if words, err := parse(fs, args[1:]); err != nil || len(words) > 0 || *unitFlag == "" {
+			fmt.Fprintln(o.err(), "use: "+o.name()+" import journal --unit UNIT [--since 90d]")
+			return 2
+		}
+		unit, since := *unitFlag, *sinceFlag
 		n, err := ImportJournal(o, unit, since)
 		if err != nil {
 			fmt.Fprintln(o.err(), err)
@@ -87,9 +93,11 @@ func importCmd(args []string, o Options) int {
 		fmt.Fprintf(o.out(), "Imported %d run%s from %s.\n", n, plural(n), strings.TrimSuffix(unit, ".service"))
 		return 0
 	case "rclone", "rsync", "cron":
-		name, rest := take(args[1:], "--name")
-		paths := remain(rest)
-		if len(paths) != 1 {
+		fs := newFlags("import " + args[0])
+		nameFlag := fs.String("name", "", "")
+		paths, err := parse(fs, args[1:])
+		name := *nameFlag
+		if err != nil || len(paths) != 1 || name == "" {
 			fmt.Fprintf(o.err(), "use: "+o.name()+" import %s --name JOB FILE\n", args[0])
 			return 2
 		}

@@ -204,27 +204,25 @@ func median(xs []float64) float64 {
 }
 
 func respaceCmd(args []string, o Options) int {
-	windowText, rest := take(args, "--window")
-	js, bad := flags(rest, map[string]bool{"--json": false})
-	if bad || len(remain(rest)) > 0 {
+	fs := newFlags("respace")
+	window := fs.Duration("window", 2*time.Hour, "")
+	asJSON := fs.Bool("json", false, "")
+	words, err := parse(fs, args)
+	if err != nil || len(words) > 0 {
 		fmt.Fprintln(o.err(), "use: "+o.name()+" respace --window 2h [--json]")
 		return 2
 	}
-	window := 2 * time.Hour
-	if windowText != "" {
-		d, err := time.ParseDuration(windowText)
-		if err != nil || d <= 0 {
-			fmt.Fprintln(o.err(), "the window is a duration such as 30m or 2h")
-			return 2
-		}
-		window = d
+	if *window <= 0 {
+		fmt.Fprintln(o.err(), "the window is a duration such as 30m or 2h")
+		return 2
 	}
+	js := map[string]bool{"--json": *asJSON}
 	jobs, err := health.FromBook(context.Background(), o.book(), o.now())
 	if err != nil {
 		fmt.Fprintln(o.err(), err)
 		return 1
 	}
-	plan := Respace(jobs, window, o.now())
+	plan := Respace(jobs, *window, o.now())
 	if js["--json"] {
 		return writeJSON(o, plan)
 	}

@@ -67,6 +67,9 @@ func isCommand(args []string) bool {
 // here rather than with the flag package so Mint's own flags keep working.
 func flagDir(args []string) string {
 	for i, a := range args {
+		if a == "--" {
+			break // what follows is a command's own arguments
+		}
 		if a == "--dir" && i+1 < len(args) {
 			return args[i+1]
 		}
@@ -83,6 +86,9 @@ func flagRest(args []string) []string {
 	var out []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
+		if a == "--" {
+			return append(out, args[i:]...) // a command's own, untouched
+		}
 		if a == "--dir" {
 			i++
 			continue
