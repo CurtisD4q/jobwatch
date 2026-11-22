@@ -10,10 +10,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/CurtisD4q/jobwatch/internal/jw"
+	"github.com/CurtisD4q/jobwatch/internal/screens"
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/jw"
-	"github.com/CurtisD4q/mint-loom/ui"
 	"github.com/CurtisD4q/mint-tools/run"
 )
 
@@ -39,12 +39,12 @@ func main() {
 	if isCommand(flagRest(os.Args[1:])) {
 		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
 	}
-	o := ui.Options{Book: book, Program: exe, Command: "jobwatch"}
+	o := screens.Options{Book: book, Program: exe}
 	app := &mint.App{
 		Title:   "✦ Jobwatch",
 		Version: Version,
 		Group:   "Observe over time",
-		Items:   ui.JobwatchEntries(o),
+		Items:   screens.Entries(o),
 	}
 	os.Args = openScreen(os.Args)
 	app.Run()
