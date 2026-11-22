@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -32,6 +33,21 @@ type Options struct {
 	// Name is what the command is called in help and messages: "jobwatch"
 	// when empty.
 	Name string
+	// Home is the history a cron line records into: cron runs jobwatch
+	// without --dir, so it is always the default folder. Empty is Dir
+	// (tests, where the two are the same).
+	Home string
+}
+
+// Elsewhere is why jobwatch will not write a schedule or a crontab line
+// for this history, or "" when it may. A history opened with --dir is not
+// the one cron lines record into, so a line written from it would fill
+// another folder while this one stayed empty.
+func Elsewhere(dir, home string) string {
+	if dir == "" || home == "" || filepath.Clean(dir) == filepath.Clean(home) {
+		return ""
+	}
+	return "this history was opened with --dir, and cron runs jobwatch without it, so a schedule made here would record into " + home + " instead. Open jobwatch without --dir to schedule"
 }
 
 func (o Options) name() string {
