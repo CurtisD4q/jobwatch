@@ -17,6 +17,8 @@ type Options struct {
 	// Program is jobwatch's absolute path, which a schedule calls. Empty
 	// turns scheduling and crontab changes off.
 	Program string
+
+	snap *snapshot // shared by the screens Entries makes; nil: each works alone
 }
 
 // command is what a person types to record a job.

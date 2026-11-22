@@ -8,8 +8,6 @@ import (
 
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/action"
-	toolsui "github.com/CurtisD4q/mint-tools/ui"
 )
 
 // AddJobs lists the lines of the person's own crontab and records the runs
@@ -19,7 +17,7 @@ import (
 func AddJobs(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "+", Title: "Add a job"}
 	scr.Refresh = func(s *mint.Screen) {
-		lines, err := loom.CronLines(context.Background(), o.Book.Exec)
+		lines, err := o.cronLines()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note(err.Error())}}}
 			return
@@ -126,7 +124,7 @@ func startRecording(ctx *mint.Ctx, o Options, cl loom.CronLine) {
 		ctx.ToastError(err.Error())
 		return
 	}
-	toolsui.Do(ctx, action.Doer{Exec: o.Book.Exec, Record: o.Book.Record}, a)
+	o.do(ctx, a)
 }
 
 func stopRecording(ctx *mint.Ctx, o Options, cl loom.CronLine) {
@@ -135,5 +133,5 @@ func stopRecording(ctx *mint.Ctx, o Options, cl loom.CronLine) {
 		ctx.ToastError(err.Error())
 		return
 	}
-	toolsui.Do(ctx, action.Doer{Exec: o.Book.Exec, Record: o.Book.Record}, a)
+	o.do(ctx, a)
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/CurtisD4q/jobwatch/internal/jw"
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/action"
-	toolsui "github.com/CurtisD4q/mint-tools/ui"
 )
 
 func (o Options) jwOpts() jw.Options {
@@ -22,7 +20,7 @@ func (o Options) jwOpts() jw.Options {
 func BackgroundCheck(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "⏲", Title: "Background check"}
 	scr.Refresh = func(s *mint.Screen) {
-		cs := jw.ReadCheck(o.jwOpts())
+		cs := o.checkSettings()
 		state := "off"
 		if cs.On {
 			state = "on, " + cs.Schedule + " (" + cs.How + ")"
@@ -46,7 +44,7 @@ func BackgroundCheck(o Options) *mint.Screen {
 							ctx.ToastError(err.Error())
 							return
 						}
-						toolsui.Do(ctx, action.Doer{Exec: o.Book.Exec, Record: o.Book.Record}, a)
+						o.do(ctx, a)
 						return
 					}
 					if o.Program == "" {
@@ -70,7 +68,7 @@ func BackgroundCheck(o Options) *mint.Screen {
 						ctx.ToastError(err.Error())
 						return
 					}
-					toolsui.Do(ctx, action.Doer{Exec: o.Book.Exec, Record: o.Book.Record}, a)
+					o.do(ctx, a)
 				}}),
 			mint.Action(mint.ActionOpts{ID: "mode", Label: "Mode", Get: func() string { return mode },
 				OnActivate: func(ctx *mint.Ctx) { setModes(ctx, o, !cs.Shadow, cs.Notify) }}),
@@ -89,6 +87,7 @@ func BackgroundCheck(o Options) *mint.Screen {
 }
 
 func setModes(ctx *mint.Ctx, o Options, shadow, notify bool) {
+	defer o.changed()
 	if err := jw.SetCheckModes(o.jwOpts(), shadow, notify); err != nil {
 		ctx.ToastError(err.Error() + ": turn the check on first")
 		return

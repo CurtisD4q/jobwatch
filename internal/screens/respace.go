@@ -1,7 +1,6 @@
 package screens
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/CurtisD4q/jobwatch/internal/jw"
 	mint "github.com/CurtisD4q/mint-kit"
 	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
 )
 
 var respaceWindows = []time.Duration{30 * time.Minute, time.Hour, 2 * time.Hour, 4 * time.Hour}
@@ -23,7 +21,7 @@ func Respace(o Options) *mint.Screen {
 	window := 2 * time.Hour
 	scr := &mint.Screen{Icon: "⇄", Title: "Re-spacing"}
 	scr.Refresh = func(s *mint.Screen) {
-		jobs, err := health.FromBook(context.Background(), o.Book, o.now())
+		jobs, _, _, err := o.check()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
@@ -42,7 +40,7 @@ func Respace(o Options) *mint.Screen {
 			}})}
 		var lines map[string]loom.CronLine
 		if o.Book.Exec != nil {
-			if cls, err := loom.CronLines(context.Background(), o.Book.Exec); err == nil {
+			if cls, err := o.cronLines(); err == nil {
 				lines = map[string]loom.CronLine{}
 				for _, cl := range cls {
 					if cl.Recorded != "" {
