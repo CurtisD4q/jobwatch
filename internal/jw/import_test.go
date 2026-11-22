@@ -65,7 +65,7 @@ func TestImportJournalUsesJournalctl(t *testing.T) {
 	if err != nil || n != 2 {
 		t.Fatal(err, n)
 	}
-	if len(f.argv) == 0 || f.argv[0] != "journalctl" || !contains(f.argv, "backup.service") || !contains(f.argv, "90d") {
+	if len(f.argv) == 0 || f.argv[0] != "journalctl" || !contains(f.argv, "backup.service") || !contains(f.argv, "--since=-90d") {
 		t.Fatalf("%v", f.argv)
 	}
 }
@@ -118,4 +118,29 @@ func (s *scripted) Run(_ context.Context, p action.Pipeline) action.Result {
 		s.argv = p[0].Argv
 	}
 	return action.Result{Stdout: []byte(s.out)}
+}
+
+// journalctl refuses "90d" ("Failed to parse timestamp"); how far back to
+// go is "-90d". Dates and words pass on as they are.
+func TestJournalSince(t *testing.T) {
+	for in, want := range map[string]string{
+		"": "-90d", "90d": "-90d", "2w": "-2w", "36h": "-36h", "-7d": "-7d",
+		"yesterday": "yesterday", "2026-01-01": "2026-01-01", "2026-01-01 03:00": "2026-01-01 03:00",
+	} {
+		if got := journalSince(in); got != want {
+			t.Errorf("journalSince(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// A user timer's service is in the person's own journal.
+func TestImportJournalFromUser(t *testing.T) {
+	f := &scripted{out: journalText}
+	o := Options{Dir: t.TempDir(), Exec: f}
+	if _, err := ImportJournalFrom(o, "backup.service", "", true); err != nil {
+		t.Fatal(err)
+	}
+	if len(f.argv) < 2 || f.argv[1] != "--user" {
+		t.Fatalf("%v", f.argv)
+	}
 }
