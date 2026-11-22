@@ -5,8 +5,6 @@ import (
 
 	mint "github.com/CurtisD4q/mint-kit"
 	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/action"
-	toolsui "github.com/CurtisD4q/mint-tools/ui"
 )
 
 const (
@@ -69,7 +67,7 @@ func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mu
 				ctx.ToastError(err.Error())
 				return
 			}
-			if out := toolsui.Do(ctx, action.Doer{Exec: o.Book.Exec, Record: o.Book.Record}, a); out.OK() {
+			if out := o.do(ctx, a); out.OK() {
 				ctx.Pop()
 			}
 		}}))

@@ -1,7 +1,6 @@
 package screens
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -26,7 +25,7 @@ func Day(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "◷", Title: "The day"}
 	scr.Refresh = func(s *mint.Screen) {
 		now := o.now()
-		jobs, err := health.FromBook(context.Background(), o.Book, now)
+		jobs, _, _, err := o.check()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return

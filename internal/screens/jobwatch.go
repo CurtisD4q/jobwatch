@@ -1,8 +1,6 @@
 package screens
 
 import (
-	"context"
-
 	mint "github.com/CurtisD4q/mint-kit"
 	"github.com/CurtisD4q/mint-kit/layouts"
 	"github.com/CurtisD4q/mint-loom/health"
@@ -10,6 +8,9 @@ import (
 
 // Entries are jobwatch's screens, for its home list.
 func Entries(o Options) []mint.HomeItem {
+	if o.snap == nil {
+		o.snap = newSnapshot()
+	}
 	return []mint.HomeItem{
 		{Icon: "✦", Label: "Jobs", Desc: "Each job in a word, with the last success and the worst finding",
 			Open: func() *mint.Screen { return Jobs(o) }},
@@ -33,12 +34,11 @@ func Entries(o Options) []mint.HomeItem {
 func Jobs(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "✦", Title: "Jobs"}
 	scr.Refresh = func(s *mint.Screen) {
-		jobs, err := health.FromBook(context.Background(), o.Book, o.now())
+		_, rep, _, err := o.check()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
 		}
-		rep := health.Check(jobs, o.now())
 		if len(rep.Statuses) == 0 {
 			s.Sections = []mint.Section{{Rows: []mint.Row{
 				mint.Note("No jobs yet."),
@@ -75,12 +75,11 @@ func Jobs(o Options) *mint.Screen {
 func Evidence(o Options, name string) *mint.Screen {
 	scr := &mint.Screen{Icon: "✦", Title: name}
 	scr.Refresh = func(s *mint.Screen) {
-		jobs, err := health.FromBook(context.Background(), o.Book, o.now())
+		_, rep, mutes, err := o.check()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
 		}
-		rep := health.Check(jobs, o.now())
 		var status *health.Status
 		for i := range rep.Statuses {
 			if rep.Statuses[i].Job == name {
@@ -95,7 +94,6 @@ func Evidence(o Options, name string) *mint.Screen {
 		if status.Confidence == "low" {
 			head = append(head, mint.Note("Read from an outside log, so this is lower confidence."))
 		}
-		mutes := health.Mutes(o.Book.Dir, o.now())
 		var found []mint.Row
 		for _, f := range rep.Findings {
 			if f.Job != name {
