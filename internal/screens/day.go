@@ -23,6 +23,7 @@ import (
 // drawn out to where that job starts.
 func Day(o Options) *mint.Screen {
 	scr := &mint.Screen{Icon: "◷", Title: "The day"}
+	scr.Poll = o.live()
 	scr.Refresh = func(s *mint.Screen) {
 		now := o.now()
 		jobs, _, _, err := o.check()

@@ -37,6 +37,7 @@ func Overview(o Options) *mint.Screen {
 	today.Refresh = func(*mint.Pane) {}
 	check.Refresh = func(*mint.Pane) {}
 	s.Status = func() []mint.Badge { return o.badges() }
+	s.Poll = o.live()
 	return s
 }
 

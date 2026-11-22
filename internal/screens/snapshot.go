@@ -161,3 +161,19 @@ func (o Options) do(ctx *mint.Ctx, a action.Action) action.Outcome {
 	o.changed()
 	return out
 }
+
+// live is a screen's Poll: true when the history, the recipes or the health
+// state changed on disk, or the minute turned, since it was last asked, so a
+// job that starts or finishes shows without a key being pressed. It only
+// reads directory entries, so it is cheap at ten times a second.
+func (o Options) live() func(*mint.Screen) bool {
+	last := stampOf(o.Book.Dir, o.now())
+	return func(*mint.Screen) bool {
+		now := stampOf(o.Book.Dir, o.now())
+		if now == last {
+			return false
+		}
+		last = now
+		return true
+	}
+}
