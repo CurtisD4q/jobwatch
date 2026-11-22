@@ -34,6 +34,9 @@ type snapshot struct {
 	mu    sync.Mutex
 	stamp string
 	jobs  []health.Job
+	// self is the background check's own recipe, kept out of the jobs:
+	// it is jobwatch watching, not one of the person's jobs.
+	self  []loom.Run
 	rep   health.Report
 	mutes []health.Mute
 	err   error
@@ -82,7 +85,16 @@ func (o Options) check() ([]health.Job, health.Report, []health.Mute, error) {
 	if s.stamp == stamp && s.stamp != "" {
 		return s.jobs, s.rep, s.mutes, s.err
 	}
-	jobs, err := health.FromBook(context.Background(), o.Book, now)
+	all, err := health.FromBook(context.Background(), o.Book, now)
+	var jobs []health.Job
+	s.self = nil
+	for _, j := range all {
+		if j.Name == jw.CheckRecipe {
+			s.self = j.Runs
+			continue
+		}
+		jobs = append(jobs, j)
+	}
 	s.jobs, s.err, s.stamp = jobs, err, stamp
 	s.rep, s.mutes = health.Report{}, nil
 	if err == nil {
@@ -176,4 +188,23 @@ func (o Options) live() func(*mint.Screen) bool {
 		last = now
 		return true
 	}
+}
+
+// checkLastRun is the background check's own last run, if it has run.
+func (o Options) checkLastRun() (loom.Run, bool) {
+	o.check()
+	s := o.snap
+	if s == nil {
+		return loom.Run{}, false
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var last loom.Run
+	found := false
+	for _, r := range s.self {
+		if !found || r.Start.After(last.Start) {
+			last, found = r, true
+		}
+	}
+	return last, found
 }
