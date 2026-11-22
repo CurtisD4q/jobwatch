@@ -103,7 +103,7 @@ func Import(o Options) *mint.Screen {
 			{Rows: about},
 		}
 	}
-	return scr
+	return o.withKeys(scr)
 }
 
 func importJournal(ctx *mint.Ctx, o Options, unit string, user bool) {

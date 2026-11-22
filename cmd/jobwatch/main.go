@@ -39,7 +39,7 @@ func main() {
 	if isCommand(flagRest(os.Args[1:])) {
 		os.Exit(jw.Main(os.Args[1:], jw.Options{Dir: loom.DefaultDir(), Exec: run.Local{}, Program: exe, Name: "jobwatch"}))
 	}
-	o := screens.Options{Book: book, Program: exe}
+	o := screens.Options{Book: book, Program: exe, Version: Version}
 	screens.UsePalette()
 	app := &mint.App{
 		Title:   "✦ Jobwatch",

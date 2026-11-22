@@ -18,6 +18,9 @@ type Options struct {
 	// turns scheduling and crontab changes off.
 	Program string
 
+	// Version is jobwatch's version, shown on Keys and settings.
+	Version string
+
 	snap *snapshot // shared by the screens Entries makes; nil: each works alone
 }
 
@@ -40,4 +43,11 @@ func describe(st health.Status) string {
 		s += ". " + st.Says
 	}
 	return s
+}
+
+func (o Options) version() string {
+	if o.Version == "" {
+		return "unknown"
+	}
+	return o.Version
 }
