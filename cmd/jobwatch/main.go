@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/CurtisD4q/pmin-base/selfinstall"
+
 	"github.com/CurtisD4q/jobwatch/internal/jw"
 	"github.com/CurtisD4q/jobwatch/internal/screens"
 	mint "github.com/CurtisD4q/pmin-kit"
@@ -22,6 +24,12 @@ import (
 var Version = "0.1.0-dev"
 
 func main() {
+	// `jobwatch install` puts this program on the PATH, with jobwatch.el
+	// beside it; `jobwatch uninstall` takes them off again.
+	if ok, code := selfinstall.Handle(selfinstall.Program{Name: "jobwatch", Files: []string{"jobwatch.el"},
+		After: "For Emacs, add to your init file: (load \"{data}/jobwatch.el\")"}, os.Args[1:], os.Stdout, os.Stderr); ok {
+		os.Exit(code)
+	}
 	exe, _ := os.Executable()
 	book := &loom.Book{Dir: loom.DefaultDir(), Exec: run.Local{}}
 	// A schedule Loom made runs this program again with --loom-run, so a

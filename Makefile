@@ -1,12 +1,27 @@
-.PHONY: build test dist
+# Made from pmin/templates/program/Makefile. NAME is the command; FILES ship
+# beside it in a release and are installed with it.
+NAME := jobwatch
+FILES := jobwatch.el
+TARGETS ?= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
+
+.PHONY: build test install uninstall dist clean
 
 build:
-	CGO_ENABLED=0 go build -trimpath -o jobwatch ./cmd/jobwatch
+	CGO_ENABLED=0 go build -trimpath -o $(NAME) ./cmd/$(NAME)
 
 test:
 	test -z "$$(gofmt -l .)" && go vet ./... && go test -race ./...
 
-# Archives for Linux amd64 and arm64 in dist/, with SHA256SUMS.
-# TARGETS="linux/amd64 darwin/arm64" make dist for others.
+# Installs into ~/.local/bin; `make install FLAGS=--system` for /usr/local.
+# Afterwards this folder can be deleted.
+install: build
+	./$(NAME) install $(FLAGS)
+
+uninstall: build
+	./$(NAME) uninstall $(FLAGS)
+
 dist:
-	scripts/dist.sh
+	NAME=$(NAME) FILES="$(FILES)" TARGETS="$(TARGETS)" sh scripts/dist.sh
+
+clean:
+	rm -rf $(NAME) dist
