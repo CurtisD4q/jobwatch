@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/action"
-	"github.com/CurtisD4q/mint-tools/run"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/action"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 // CheckRecipe is the recipe whose schedule runs the check.
@@ -148,9 +148,9 @@ check writes one line per alert. An alert is the finding only.
 --shadow writes what it would have alerted on and sends nothing.`, "{cmd}", name)
 }
 
-func exitOf(rep health.Report) int {
+func exitOf(rep jobhealth.Report) int {
 	for _, f := range rep.Findings {
-		if f.Level >= health.Problem {
+		if f.Level >= jobhealth.Problem {
 			return 1
 		}
 	}

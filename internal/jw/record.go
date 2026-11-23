@@ -3,7 +3,7 @@ package jw
 import (
 	"fmt"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func record(args []string, o Options) int {

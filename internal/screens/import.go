@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-tools/action"
+	mint "github.com/CurtisD4q/pmin-kit"
+	"github.com/CurtisD4q/pmin-tools/action"
 )
 
 // timerService is a service a systemd timer starts, in the system's

@@ -10,9 +10,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/run"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 // Every screen on the home list, drawn at a phone-narrow 52 columns and at

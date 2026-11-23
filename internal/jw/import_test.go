@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CurtisD4q/mint-tools/action"
+	"github.com/CurtisD4q/pmin-tools/action"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 const journalText = `2026-01-06T03:00:01+0000 host systemd[1]: Started backup.service - Backup.

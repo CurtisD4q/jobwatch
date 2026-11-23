@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func (o Options) jwOpts() jw.Options {

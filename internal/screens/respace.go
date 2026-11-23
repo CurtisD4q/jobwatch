@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 var respaceWindows = []time.Duration{30 * time.Minute, time.Hour, 2 * time.Hour, 4 * time.Hour}

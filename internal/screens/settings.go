@@ -3,8 +3,8 @@ package screens
 import (
 	"time"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
 )
 
 const (
@@ -17,17 +17,17 @@ const (
 
 // settingsRows mute or unmute each finding that would be sent about the
 // job, and delete its history.
-func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mute) []mint.Row {
+func settingsRows(o Options, name string, fs []jobhealth.Finding, mutes []jobhealth.Mute) []mint.Row {
 	var rows []mint.Row
 	seen := map[string]bool{}
 	for _, f := range fs {
-		if f.Job != name || f.Level < health.Warn || seen[f.ID()] {
+		if f.Job != name || f.Level < jobhealth.Warn || seen[f.ID()] {
 			continue
 		}
 		seen[f.ID()] = true
 		f := f
 		state := "sent"
-		if ok, until := health.Muted(mutes, f); ok {
+		if ok, until := jobhealth.Muted(mutes, f); ok {
 			state = "muted"
 			if !until.IsZero() {
 				state = "muted to " + until.Local().Format("2 Jan 15:04")
@@ -48,13 +48,13 @@ func settingsRows(o Options, name string, fs []health.Finding, mutes []health.Mu
 				var err error
 				switch pick {
 				case muteDay:
-					err = health.SetMute(o.Book.Dir, health.MuteOf(f, now.Add(24*time.Hour)), now)
+					err = jobhealth.SetMute(o.Book.Dir, jobhealth.MuteOf(f, now.Add(24*time.Hour)), now)
 				case muteWeek:
-					err = health.SetMute(o.Book.Dir, health.MuteOf(f, now.Add(7*24*time.Hour)), now)
+					err = jobhealth.SetMute(o.Book.Dir, jobhealth.MuteOf(f, now.Add(7*24*time.Hour)), now)
 				case muteFor:
-					err = health.SetMute(o.Book.Dir, health.MuteOf(f, time.Time{}), now)
+					err = jobhealth.SetMute(o.Book.Dir, jobhealth.MuteOf(f, time.Time{}), now)
 				case muteLift:
-					err = health.Unmute(o.Book.Dir, health.MuteOf(f, time.Time{}), now)
+					err = jobhealth.Unmute(o.Book.Dir, jobhealth.MuteOf(f, time.Time{}), now)
 				}
 				if err != nil {
 					ctx.ToastError(err.Error())

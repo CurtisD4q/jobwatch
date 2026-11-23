@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/action"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/action"
 )
 
 // timersExec answers systemctl list-timers, for the system and the user.

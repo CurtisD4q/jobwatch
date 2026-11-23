@@ -3,8 +3,8 @@ package screens
 import (
 	"testing"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/run"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 // A screen asks to be drawn again when a run is recorded, and not when

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 const sparkBlocks = "▁▂▃▄▅▆▇█"

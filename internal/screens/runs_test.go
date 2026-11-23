@@ -1,14 +1,14 @@
 package screens
 
 import (
-	mint "github.com/CurtisD4q/mint-kit"
+	mint "github.com/CurtisD4q/pmin-kit"
 	"strings"
 	"testing"
 	"time"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/run"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 func TestSparkline(t *testing.T) {
@@ -64,7 +64,7 @@ func TestEvidenceSettings(t *testing.T) {
 			t.Errorf("lacks %q:\n%s", w, frame)
 		}
 	}
-	if err := health.SetMute(b.Dir, health.Mute{Job: "nightly", Kind: health.Failing}, time.Now()); err != nil {
+	if err := jobhealth.SetMute(b.Dir, jobhealth.Mute{Job: "nightly", Kind: jobhealth.Failing}, time.Now()); err != nil {
 		t.Fatal(err)
 	}
 	frame = text(Evidence(Options{Book: b}, "nightly"))
@@ -76,15 +76,15 @@ func TestEvidenceSettings(t *testing.T) {
 // Running into b and running into c are muted apart.
 func TestSettingsRowPerFinding(t *testing.T) {
 	b := &loom.Book{Dir: t.TempDir(), Exec: run.Local{}}
-	fs := []health.Finding{
-		{Job: "a", Kind: health.IntoNext, Other: "b", Level: health.Warn},
-		{Job: "a", Kind: health.IntoNext, Other: "c", Level: health.Warn},
-		{Job: "a", Kind: health.IntoNext, Other: "c", Level: health.Warn}, // the same again
+	fs := []jobhealth.Finding{
+		{Job: "a", Kind: jobhealth.IntoNext, Other: "b", Level: jobhealth.Warn},
+		{Job: "a", Kind: jobhealth.IntoNext, Other: "c", Level: jobhealth.Warn},
+		{Job: "a", Kind: jobhealth.IntoNext, Other: "c", Level: jobhealth.Warn}, // the same again
 	}
-	if err := health.SetMute(b.Dir, health.MuteOf(fs[0], time.Time{}), time.Now()); err != nil {
+	if err := jobhealth.SetMute(b.Dir, jobhealth.MuteOf(fs[0], time.Time{}), time.Now()); err != nil {
 		t.Fatal(err)
 	}
-	rows := settingsRows(Options{Book: b}, "a", fs, health.Mutes(b.Dir, time.Now()))
+	rows := settingsRows(Options{Book: b}, "a", fs, jobhealth.Mutes(b.Dir, time.Now()))
 	scr := &mint.Screen{Sections: []mint.Section{{Rows: rows}}}
 	frame := text(scr)
 	for _, w := range []string{"Alerts about into-next (b)", "Alerts about into-next (c)", "Delete its history"} {

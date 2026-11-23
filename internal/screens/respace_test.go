@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func TestShiftedLine(t *testing.T) {

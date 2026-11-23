@@ -3,7 +3,7 @@ package jw
 import (
 	"fmt"
 
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
 )
 
 // timelineJSON is one day, midnight to midnight, in minutes of the day.
@@ -56,11 +56,11 @@ func timeline(args []string, o Options) int {
 		fmt.Fprintln(o.err(), err)
 		return 1
 	}
-	state := map[string]health.Status{}
+	state := map[string]jobhealth.Status{}
 	for _, s := range rep.Statuses {
 		state[s.Job] = s
 	}
-	line, bars := health.DayTimeline(jobs, o.now())
+	line, bars := jobhealth.DayTimeline(jobs, o.now())
 	if js["--json"] {
 		out := timelineJSON{Clock: line, Bars: []timelineBarJSON{}}
 		for _, b := range bars {
@@ -77,7 +77,7 @@ func timeline(args []string, o Options) int {
 		}
 		return exitOf(rep)
 	}
-	for _, l := range health.Day(jobs, o.now()) {
+	for _, l := range jobhealth.Day(jobs, o.now()) {
 		fmt.Fprintln(o.out(), l)
 	}
 	return exitOf(rep)

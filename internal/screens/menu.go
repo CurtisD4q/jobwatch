@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-kit/layouts"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
+	"github.com/CurtisD4q/pmin-kit/layouts"
 )
 
 // menuItem is one line of the menu: a screen, the key that opens it from
@@ -86,7 +86,7 @@ func Menu(o Options) *mint.Screen {
 
 // menuBanner is the overview's one thing most worth doing, or, before there
 // are any jobs, where to start.
-func menuBanner(rep health.Report, checkOn bool) string {
+func menuBanner(rep jobhealth.Report, checkOn bool) string {
 	if len(rep.Statuses) == 0 {
 		return fitBanner("New here? Press ? for how this works, or n to add your first job.", "New here? ? for help, n to add a job.")
 	}
@@ -95,13 +95,13 @@ func menuBanner(rep health.Report, checkOn bool) string {
 
 // menuGlance is how things stand, in a few lines: the jobs, the check and
 // the latest alert. Each opens the screen with the rest.
-func menuGlance(o Options, rep health.Report) []mint.Section {
+func menuGlance(o Options, rep jobhealth.Report) []mint.Section {
 	problems, warnings := 0, 0
 	for _, st := range rep.Statuses {
 		switch st.Level {
-		case health.Problem:
+		case jobhealth.Problem:
 			problems++
-		case health.Warn:
+		case jobhealth.Warn:
 			warnings++
 		}
 	}

@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 // AddJobs lists the lines of the person's own crontab and records the runs

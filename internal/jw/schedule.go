@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/action"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/action"
 )
 
 func schedule(args []string, o Options) int {

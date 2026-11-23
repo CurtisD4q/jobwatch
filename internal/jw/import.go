@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CurtisD4q/mint-tools/action"
+	"github.com/CurtisD4q/pmin-tools/action"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 // ImportJournal reads journalctl for one unit and stores the runs it can

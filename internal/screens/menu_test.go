@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 // The menu's keys are the keys that work: each one it shows opens that

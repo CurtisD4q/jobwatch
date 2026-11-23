@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CurtisD4q/mint-tools/action"
-	"github.com/CurtisD4q/mint-tools/run"
+	"github.com/CurtisD4q/pmin-tools/action"
+	"github.com/CurtisD4q/pmin-tools/run"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func opts(dir string) Options {

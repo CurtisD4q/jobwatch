@@ -2,9 +2,9 @@ package screens
 
 import (
 	"fmt"
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-kit/layouts"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
+	"github.com/CurtisD4q/pmin-kit/layouts"
 	"time"
 )
 
@@ -72,7 +72,7 @@ func Jobs(o Options) *mint.Screen {
 				label += " ◌"
 			}
 			rows = append(rows, mint.Action(mint.ActionOpts{
-				ID: "jw-" + st.Job, Label: label, Alert: st.Level == health.Problem,
+				ID: "jw-" + st.Job, Label: label, Alert: st.Level == jobhealth.Problem,
 				Get: func() string { return val },
 				OnActivate: func(ctx *mint.Ctx) {
 					ctx.Push(Evidence(o, st.Job))
@@ -102,7 +102,7 @@ func Evidence(o Options, name string) *mint.Screen {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
 		}
-		var status *health.Status
+		var status *jobhealth.Status
 		for i := range rep.Statuses {
 			if rep.Statuses[i].Job == name {
 				status = &rep.Statuses[i]
@@ -122,7 +122,7 @@ func Evidence(o Options, name string) *mint.Screen {
 				continue
 			}
 			tag := ""
-			if ok, _ := health.Muted(mutes, f); ok {
+			if ok, _ := jobhealth.Muted(mutes, f); ok {
 				tag = " (muted)"
 			}
 			found = append(found, wrapped(f.Level.String()+tag+"  "+string(f.Kind)+": "+f.Says, "")...)

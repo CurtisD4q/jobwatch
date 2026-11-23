@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
 )
 
 // Overview is jobwatch's home: the jobs on the left, today in the middle
@@ -41,7 +41,7 @@ func Overview(o Options) *mint.Screen {
 
 // shortState is a job's state in a word or two, short enough never to be
 // cut off beside its name.
-func shortState(st health.Status) string {
+func shortState(st jobhealth.Status) string {
 	s := st.State
 	if r := []rune(s); len(r) > 16 {
 		s = string(r[:15]) + "…"
@@ -49,11 +49,11 @@ func shortState(st health.Status) string {
 	return s
 }
 
-func overviewJobs(o Options, rep health.Report) []mint.Section {
+func overviewJobs(o Options, rep jobhealth.Report) []mint.Section {
 	if len(rep.Statuses) == 0 {
 		return firstSteps(o)
 	}
-	statuses := append([]health.Status(nil), rep.Statuses...)
+	statuses := append([]jobhealth.Status(nil), rep.Statuses...)
 	// worst first, then by name, so what needs looking at is on top
 	sort.SliceStable(statuses, func(i, j int) bool {
 		if statuses[i].Level != statuses[j].Level {
@@ -69,7 +69,7 @@ func overviewJobs(o Options, rep health.Report) []mint.Section {
 			label += " ◌"
 		}
 		state := shortState(st)
-		rows = append(rows, mint.Action(mint.ActionOpts{ID: "ov-" + st.Job, Label: label, Alert: st.Level == health.Problem,
+		rows = append(rows, mint.Action(mint.ActionOpts{ID: "ov-" + st.Job, Label: label, Alert: st.Level == jobhealth.Problem,
 			Get:        func() string { return state },
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(Evidence(o, st.Job)) }}))
 	}
@@ -105,7 +105,7 @@ func localStart(min float64, now time.Time) string {
 	return t.Local().Format("15:04")
 }
 
-func overviewToday(o Options, jobs []health.Job) []mint.Section {
+func overviewToday(o Options, jobs []jobhealth.Job) []mint.Section {
 	now := o.now()
 	var running []mint.Row
 	for _, j := range jobs {
@@ -114,7 +114,7 @@ func overviewToday(o Options, jobs []health.Job) []mint.Section {
 			running = append(running, mint.Note(fmt.Sprintf("%s  %s, since %s", "●", j.Name, since.Local().Format("15:04"))))
 		}
 	}
-	_, bars := health.DayTimeline(jobs, now)
+	_, bars := jobhealth.DayTimeline(jobs, now)
 	sort.SliceStable(bars, func(i, j int) bool { return bars[i].Start < bars[j].Start })
 	var starts []mint.Row
 	for _, b := range bars {
@@ -185,10 +185,10 @@ func overviewCheck(o Options) []mint.Section {
 }
 
 // overviewBanner is the one thing most worth doing, or "" when all is well.
-func overviewBanner(rep health.Report, checkOn bool, jobs int) string {
+func overviewBanner(rep jobhealth.Report, checkOn bool, jobs int) string {
 	var problems, names []string
 	for _, st := range rep.Statuses {
-		if st.Level == health.Problem {
+		if st.Level == jobhealth.Problem {
 			problems = append(problems, st.Job+" is "+st.State)
 			names = append(names, st.Job)
 		}
@@ -215,9 +215,9 @@ func (o Options) badges() []mint.Badge {
 	problems, warnings := 0, 0
 	for _, st := range rep.Statuses {
 		switch st.Level {
-		case health.Problem:
+		case jobhealth.Problem:
 			problems++
-		case health.Warn:
+		case jobhealth.Warn:
 			warnings++
 		}
 	}

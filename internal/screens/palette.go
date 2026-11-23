@@ -3,8 +3,8 @@ package screens
 import (
 	"os"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-kit/theme"
+	mint "github.com/CurtisD4q/pmin-kit"
+	"github.com/CurtisD4q/pmin-kit/theme"
 )
 
 // jobwatchSpec is jobwatch's own look: night blue with sky accents, green

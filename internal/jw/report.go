@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	"github.com/CurtisD4q/pmin-loom/health"
 )
 
 type jobJSON struct {
@@ -33,16 +34,16 @@ type reportJSON struct {
 	Findings []findingJSON `json:"findings"`
 }
 
-func load(o Options) ([]health.Job, health.Report, error) {
+func load(o Options) ([]jobhealth.Job, jobhealth.Report, error) {
 	b := o.book()
 	jobs, err := health.FromBook(context.Background(), b, o.now())
 	if err != nil {
-		return nil, health.Report{}, err
+		return nil, jobhealth.Report{}, err
 	}
-	return jobs, health.Check(jobs, o.now()), nil
+	return jobs, jobhealth.Check(jobs, o.now()), nil
 }
 
-func runLengths(j health.Job) []float64 {
+func runLengths(j jobhealth.Job) []float64 {
 	var out []float64
 	for _, r := range j.Runs {
 		if r.OK && r.Skip == "" && r.Duration() > 0 {
@@ -55,7 +56,7 @@ func runLengths(j health.Job) []float64 {
 	return out
 }
 
-func asJSON(jobs []health.Job, rep health.Report, evidence bool) reportJSON {
+func asJSON(jobs []jobhealth.Job, rep jobhealth.Report, evidence bool) reportJSON {
 	lengths := map[string][]float64{}
 	for _, j := range jobs {
 		if d := runLengths(j); len(d) > 0 {
@@ -130,9 +131,9 @@ func forecast(args []string, o Options) int {
 		fmt.Fprintln(o.err(), err)
 		return 1
 	}
-	var kept []health.Finding
+	var kept []jobhealth.Finding
 	for _, f := range rep.Findings {
-		if f.Kind == health.Overrun {
+		if f.Kind == jobhealth.Overrun {
 			kept = append(kept, f)
 		}
 	}

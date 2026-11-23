@@ -7,22 +7,21 @@ import (
 	"testing"
 	"time"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
 )
 
-func runsAt(hour, min int, dur time.Duration, n int) []loom.Run {
-	var out []loom.Run
+func runsAt(hour, min int, dur time.Duration, n int) []jobhealth.Run {
+	var out []jobhealth.Run
 	first := time.Date(2026, 1, 1, hour, min, 0, 0, time.UTC)
 	for i := 0; i < n; i++ {
 		s := first.AddDate(0, 0, i)
-		out = append(out, loom.Run{Start: s, End: s.Add(dur), Elapsed: dur.Seconds(), OK: true, By: "schedule"})
+		out = append(out, jobhealth.Run{Start: s, End: s.Add(dur), Elapsed: dur.Seconds(), OK: true, By: "schedule"})
 	}
 	return out
 }
 
 func TestRespacePrintsAPlanAndChangesNothing(t *testing.T) {
-	jobs := []health.Job{
+	jobs := []jobhealth.Job{
 		{Name: "backup", Schedule: "0 2 * * *", Period: 24 * time.Hour, Runs: runsAt(2, 0, 90*time.Minute, 5)},
 		{Name: "prune", Schedule: "30 2 * * *", Period: 24 * time.Hour, Runs: runsAt(2, 30, 20*time.Minute, 5)},
 	}

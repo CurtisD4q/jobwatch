@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/action"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	"github.com/CurtisD4q/pmin-tools/action"
 )
 
 func check(args []string, o Options) int {
@@ -29,8 +29,8 @@ func check(args []string, o Options) int {
 		fmt.Fprintln(o.err(), err)
 		return 1
 	}
-	tr := health.Tracker{Dir: o.book().Dir, Now: o.now}
-	var alerts []health.Finding
+	tr := jobhealth.Tracker{Dir: o.book().Dir, Now: o.now}
+	var alerts []jobhealth.Finding
 	if js["--shadow"] {
 		alerts, err = tr.ApplyShadow(rep.Findings)
 	} else {
@@ -118,7 +118,7 @@ func stampLines(now time.Time, lines []string) []string {
 	return out
 }
 
-func alertLines(fs []health.Finding, low map[string]bool) []string {
+func alertLines(fs []jobhealth.Finding, low map[string]bool) []string {
 	var out []string
 	for _, f := range fs {
 		line := f.Job + ": " + f.Says
@@ -130,7 +130,7 @@ func alertLines(fs []health.Finding, low map[string]bool) []string {
 	return out
 }
 
-func alertJSON(fs []health.Finding) []findingJSON {
+func alertJSON(fs []jobhealth.Finding) []findingJSON {
 	var out []findingJSON
 	for _, f := range fs {
 		out = append(out, findingJSON{Job: f.Job, Kind: string(f.Kind), Level: f.Level.String(), Says: f.Says})

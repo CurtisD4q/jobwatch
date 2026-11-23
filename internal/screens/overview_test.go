@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/run"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 func overviewText(o Options) string {
@@ -57,18 +57,18 @@ func TestOverviewBanner(t *testing.T) {
 	old := termCols
 	t.Cleanup(func() { termCols = old })
 	termCols = func() int { return 140 }
-	fine := health.Report{Statuses: []health.Status{{Job: "a", State: "fine"}}}
+	fine := jobhealth.Report{Statuses: []jobhealth.Status{{Job: "a", State: "fine"}}}
 	if got := overviewBanner(fine, false, 1); !strings.Contains(got, "background check is off") {
 		t.Fatal(got)
 	}
 	if got := overviewBanner(fine, true, 1); got != "" {
 		t.Fatal(got)
 	}
-	two := health.Report{Statuses: []health.Status{{Job: "a", State: "failing", Level: health.Problem}, {Job: "b", State: "overdue", Level: health.Problem}}}
+	two := jobhealth.Report{Statuses: []jobhealth.Status{{Job: "a", State: "failing", Level: jobhealth.Problem}, {Job: "b", State: "overdue", Level: jobhealth.Problem}}}
 	if got := overviewBanner(two, true, 2); got != "2 problems: a is failing, b is overdue" {
 		t.Fatal(got)
 	}
-	if got := overviewBanner(health.Report{}, false, 0); got != "" {
+	if got := overviewBanner(jobhealth.Report{}, false, 0); got != "" {
 		t.Fatalf("no jobs, and nagged about the check: %q", got)
 	}
 }
@@ -88,9 +88,9 @@ func TestOverviewBannerFits(t *testing.T) {
 	old := termCols
 	t.Cleanup(func() { termCols = old })
 	termCols = func() int { return 52 }
-	many := health.Report{}
+	many := jobhealth.Report{}
 	for _, n := range []string{"nightly-backup", "photo-sync", "offsite-copy"} {
-		many.Statuses = append(many.Statuses, health.Status{Job: n, State: "overdue", Level: health.Problem})
+		many.Statuses = append(many.Statuses, jobhealth.Status{Job: n, State: "overdue", Level: jobhealth.Problem})
 	}
 	got := overviewBanner(many, true, 3)
 	if len([]rune(got)) > 46 || !strings.HasPrefix(got, "3 problems: nightly-backup") {

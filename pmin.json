@@ -1,0 +1,14 @@
+{
+  "name": "jobwatch",
+  "module": "github.com/CurtisD4q/jobwatch",
+  "tier": "example",
+  "summary": "A backup and job health program built with pmin: Loom keeps the jobs, pmin-jobhealth judges them",
+  "audience": "user",
+  "requires": [
+    "pmin-jobhealth",
+    "pmin-kit",
+    "pmin-loom",
+    "pmin-tools"
+  ],
+  "status": "v0"
+}

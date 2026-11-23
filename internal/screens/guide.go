@@ -1,7 +1,7 @@
 package screens
 
 import (
-	mint "github.com/CurtisD4q/mint-kit"
+	mint "github.com/CurtisD4q/pmin-kit"
 )
 
 // Guide is the short orientation: what jobwatch does, in a few steps, in

@@ -10,11 +10,12 @@ import (
 	"time"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/action"
-	toolsui "github.com/CurtisD4q/mint-tools/ui"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-loom/health"
+	"github.com/CurtisD4q/pmin-tools/action"
+	toolsui "github.com/CurtisD4q/pmin-tools/ui"
 )
 
 // A screen is redrawn on every key, and its Refresh runs each time. Reading
@@ -33,12 +34,12 @@ const cronTTL = 30 * time.Second
 type snapshot struct {
 	mu    sync.Mutex
 	stamp string
-	jobs  []health.Job
+	jobs  []jobhealth.Job
 	// self is the background check's own recipe, kept out of the jobs:
 	// it is jobwatch watching, not one of the person's jobs.
-	self  []loom.Run
-	rep   health.Report
-	mutes []health.Mute
+	self  []jobhealth.Run
+	rep   jobhealth.Report
+	mutes []jobhealth.Mute
 	err   error
 
 	cronAt  time.Time
@@ -73,7 +74,7 @@ func stampOf(dir string, now time.Time) string {
 }
 
 // check is the shared result: the jobs, the health report and the mutes.
-func (o Options) check() ([]health.Job, health.Report, []health.Mute, error) {
+func (o Options) check() ([]jobhealth.Job, jobhealth.Report, []jobhealth.Mute, error) {
 	s := o.snap
 	if s == nil {
 		s = newSnapshot() // a screen made on its own: no sharing, same answer
@@ -86,7 +87,7 @@ func (o Options) check() ([]health.Job, health.Report, []health.Mute, error) {
 		return s.jobs, s.rep, s.mutes, s.err
 	}
 	all, err := health.FromBook(context.Background(), o.Book, now)
-	var jobs []health.Job
+	var jobs []jobhealth.Job
 	s.self = nil
 	for _, j := range all {
 		if j.Name == jw.CheckRecipe {
@@ -96,10 +97,10 @@ func (o Options) check() ([]health.Job, health.Report, []health.Mute, error) {
 		jobs = append(jobs, j)
 	}
 	s.jobs, s.err, s.stamp = jobs, err, stamp
-	s.rep, s.mutes = health.Report{}, nil
+	s.rep, s.mutes = jobhealth.Report{}, nil
 	if err == nil {
-		s.rep = health.Check(jobs, now)
-		s.mutes = health.Mutes(o.Book.Dir, now)
+		s.rep = jobhealth.Check(jobs, now)
+		s.mutes = jobhealth.Mutes(o.Book.Dir, now)
 	}
 	return s.jobs, s.rep, s.mutes, s.err
 }
@@ -191,15 +192,15 @@ func (o Options) live() func(*mint.Screen) bool {
 }
 
 // checkLastRun is the background check's own last run, if it has run.
-func (o Options) checkLastRun() (loom.Run, bool) {
+func (o Options) checkLastRun() (jobhealth.Run, bool) {
 	o.check()
 	s := o.snap
 	if s == nil {
-		return loom.Run{}, false
+		return jobhealth.Run{}, false
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	var last loom.Run
+	var last jobhealth.Run
 	found := false
 	for _, r := range s.self {
 		if !found || r.Start.After(last.Start) {

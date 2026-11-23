@@ -7,8 +7,8 @@ import (
 	"sort"
 	"time"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	"github.com/CurtisD4q/pmin-loom/health"
 )
 
 // Move is one suggested change of a job's usual start. Nothing here is applied.
@@ -28,7 +28,7 @@ type SpacePlan struct {
 }
 
 type spaceItem struct {
-	job   health.Job
+	job   jobhealth.Job
 	start int
 	dur   time.Duration
 }
@@ -37,7 +37,7 @@ type spaceItem struct {
 // returns the arrangement with the least overlap. It never changes a schedule.
 // The effect line is what the health check, the same one the simulator
 // replays, says before and after the move.
-func Respace(jobs []health.Job, window time.Duration, now time.Time) SpacePlan {
+func Respace(jobs []jobhealth.Job, window time.Duration, now time.Time) SpacePlan {
 	if window <= 0 {
 		window = 2 * time.Hour
 	}
@@ -72,7 +72,7 @@ func Respace(jobs []health.Job, window time.Duration, now time.Time) SpacePlan {
 	}
 	before := overlapScore(items, nil)
 	after := overlapScore(items, placed)
-	shifted := append([]health.Job(nil), jobs...)
+	shifted := append([]jobhealth.Job(nil), jobs...)
 	index := map[string]int{}
 	for i, j := range shifted {
 		index[j.Name] = i
@@ -97,22 +97,22 @@ func Respace(jobs []health.Job, window time.Duration, now time.Time) SpacePlan {
 	}
 }
 
-func effect(before, after []health.Job, now time.Time) string {
-	b := health.Check(before, now)
-	a := health.Check(after, now)
+func effect(before, after []jobhealth.Job, now time.Time) string {
+	b := jobhealth.Check(before, now)
+	a := jobhealth.Check(after, now)
 	return fmt.Sprintf("Health check before: %s. After the move: %s.", crowd(b), crowd(a))
 }
 
-func crowd(rep health.Report) string {
+func crowd(rep jobhealth.Report) string {
 	for _, f := range rep.Findings {
-		if f.Kind == health.Concurrency {
+		if f.Kind == jobhealth.Concurrency {
 			return f.Says
 		}
 	}
 	return "no three jobs run at once"
 }
 
-func usual(j health.Job) (start int, dur time.Duration, ok bool) {
+func usual(j jobhealth.Job) (start int, dur time.Duration, ok bool) {
 	var mins, durs []float64
 	for _, r := range j.Runs {
 		if r.By == "hand" || r.Skip != "" || !r.End.After(r.Start) {
@@ -158,8 +158,8 @@ func overlapScore(items []spaceItem, placed map[string]int) float64 {
 	return mins
 }
 
-func shiftRuns(runs []loom.Run, minute int) []loom.Run {
-	out := make([]loom.Run, len(runs))
+func shiftRuns(runs []jobhealth.Run, minute int) []jobhealth.Run {
+	out := make([]jobhealth.Run, len(runs))
 	copy(out, runs)
 	for i, r := range out {
 		d := r.End.Sub(r.Start)

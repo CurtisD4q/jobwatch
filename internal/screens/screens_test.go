@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
-	"github.com/CurtisD4q/mint-tools/run"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 var sgr = regexp.MustCompile(`\x1b\[[0-9;?]*[A-Za-z]`)
@@ -122,7 +122,7 @@ func TestDayBarTakesTheWidth(t *testing.T) {
 	}
 	// A bar is exactly as wide as it is asked for.
 	for _, w := range []int{dayCols, 94, 174} {
-		b := health.Bar{Name: "x", Start: 120, Usual: 150, Slow: 160, Next: 180, NextName: "y", Gap: 20}
+		b := jobhealth.Bar{Name: "x", Start: 120, Usual: 150, Slow: 160, Next: 180, NextName: "y", Gap: 20}
 		if got := len([]rune(drawBar(b, w))); got != w {
 			t.Errorf("drawBar(%d) is %d wide", w, got)
 		}
@@ -149,7 +149,7 @@ func TestDayAxisFollowsTheBar(t *testing.T) {
 func TestDrawBarMarks(t *testing.T) {
 	// A column is thirty minutes at 48 columns, so a two-hour run is four
 	// columns of solid and the half-hour tail after it is one more.
-	b := health.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 165, Next: 181, NextName: "sync", Gap: 16}
+	b := jobhealth.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 165, Next: 181, NextName: "sync", Gap: 16}
 	bar := drawBar(b, 48)
 	for _, c := range []struct {
 		col  int
@@ -169,7 +169,7 @@ func TestDrawBarMarks(t *testing.T) {
 
 	// A gap of an hour of more shows: the space between the job's slow end
 	// and the next job's start.
-	gap := health.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 150, Next: 480, NextName: "sync", Gap: 330}
+	gap := jobhealth.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 150, Next: 480, NextName: "sync", Gap: 330}
 	if g := []rune(drawBar(gap, 48)); g[7] != '─' || g[16] != '┆' {
 		t.Errorf("a gap is not drawn: %q", string(g[4:18]))
 	}
@@ -183,7 +183,7 @@ func TestDrawBarMarks(t *testing.T) {
 
 	// A span shorter than a column still shows: a twenty-minute tail on a
 	// thirty-minute column is a cell, not nothing.
-	short := drawBar(health.Bar{Name: "x", Start: 120, Usual: 150, Slow: 160}, 48)
+	short := drawBar(jobhealth.Bar{Name: "x", Start: 120, Usual: 150, Slow: 160}, 48)
 	if []rune(short)[5] != '▓' {
 		t.Errorf("a short tail vanished: %q", short)
 	}
@@ -216,8 +216,8 @@ func TestPivot(t *testing.T) {
 func TestDayWordsMatchThePicture(t *testing.T) {
 	// 02:00 for 30 min, slowest 35; sync at 03:00, which is more than 12
 	// hours away in columns but under 12 hours in time.
-	b := health.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 155, Next: 180, NextName: "sync", Gap: 25}
-	if !strings.ContainsRune(drawBar(health.Bar{Name: "x", Start: 120, Usual: 150, Slow: 155, Next: 180, NextName: "sync", Gap: 25}, 48), '┆') {
+	b := jobhealth.Bar{Name: "backup", Start: 120, Usual: 150, Slow: 155, Next: 180, NextName: "sync", Gap: 25}
+	if !strings.ContainsRune(drawBar(jobhealth.Bar{Name: "x", Start: 120, Usual: 150, Slow: 155, Next: 180, NextName: "sync", Gap: 25}, 48), '┆') {
 		t.Fatal("the next job's start is not marked")
 	}
 	if s := sayDay(b, false); s != "25 min before sync" {
@@ -225,15 +225,15 @@ func TestDayWordsMatchThePicture(t *testing.T) {
 	}
 	// A job that never recorded how long it runs says nothing, so the row
 	// keeps "open".
-	if s := sayDay(health.Bar{Name: "x", Start: 120, Usual: 120, Slow: 120}, false); s != "" {
+	if s := sayDay(jobhealth.Bar{Name: "x", Start: 120, Usual: 120, Slow: 120}, false); s != "" {
 		t.Fatalf("said %q", s)
 	}
 	// A weekly job says which it is.
-	if s := sayDay(health.Bar{Name: "w", Start: 120, Usual: 150, Slow: 155, Gap: 13 * 60, Period: weekly}, false); !strings.Contains(s, "weekly") {
+	if s := sayDay(jobhealth.Bar{Name: "w", Start: 120, Usual: 150, Slow: 155, Gap: 13 * 60, Period: weekly}, false); !strings.Contains(s, "weekly") {
 		t.Fatalf("said %q", s)
 	}
 	// Overrunning is said as overrunning, whether or not the bar is marked.
-	if s := sayDay(health.Bar{Name: "o", Start: 120, Usual: 150, Slow: 200, Next: 180, NextName: "sync", Overrun: true}, false); s != "runs past sync" {
+	if s := sayDay(jobhealth.Bar{Name: "o", Start: 120, Usual: 150, Slow: 200, Next: 180, NextName: "sync", Overrun: true}, false); s != "runs past sync" {
 		t.Fatalf("said %q", s)
 	}
 }

@@ -12,9 +12,9 @@ import (
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
 	"github.com/CurtisD4q/jobwatch/internal/screens"
-	mint "github.com/CurtisD4q/mint-kit"
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/run"
+	mint "github.com/CurtisD4q/pmin-kit"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 // Version is the app's own version. A release sets it from its tag with

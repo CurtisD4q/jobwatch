@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func TestBackgroundCheckScreen(t *testing.T) {

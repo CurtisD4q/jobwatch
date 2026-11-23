@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-tools/action"
-	"github.com/CurtisD4q/mint-tools/run"
+	loom "github.com/CurtisD4q/pmin-loom"
+	"github.com/CurtisD4q/pmin-tools/action"
+	"github.com/CurtisD4q/pmin-tools/run"
 )
 
 // counting serves a crontab, counts how often it is read, and runs

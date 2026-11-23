@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	loom "github.com/CurtisD4q/mint-loom"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 func keysOf(t *testing.T, keys []string) map[string]bool {

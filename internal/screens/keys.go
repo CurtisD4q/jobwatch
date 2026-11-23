@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	mint "github.com/CurtisD4q/mint-kit"
+	mint "github.com/CurtisD4q/pmin-kit"
 )
 
 // jump is a key that opens a screen, the same on every jobwatch screen.

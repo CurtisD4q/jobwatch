@@ -9,8 +9,8 @@ import (
 
 	"github.com/CurtisD4q/jobwatch/internal/jw"
 
-	loom "github.com/CurtisD4q/mint-loom"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	loom "github.com/CurtisD4q/pmin-loom"
 )
 
 // Options configure the screens.
@@ -50,7 +50,7 @@ func (o Options) now() time.Time {
 }
 
 // describe is a job's state and the finding behind it, in a line.
-func describe(st health.Status) string {
+func describe(st jobhealth.Status) string {
 	s := st.State
 	if st.Says != "" {
 		s += ". " + st.Says

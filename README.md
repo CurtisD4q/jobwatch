@@ -4,7 +4,7 @@ Are my backup and sync jobs still working, and will they keep working? Without r
 
 Most backup failures are slow and predictable: data grows, runs take longer, the gap before the next job shrinks, and eventually one job runs into the next or is skipped. jobwatch reads how your jobs have been running and says, in a word, how each is doing, before that happens. **It never changes a schedule.**
 
-A standalone terminal app in the Mint family, with [cairn](https://github.com/CurtisD4q/cairn) and susynth: one program, no daemon, no database. The same program records your jobs, checks them in the background, and shows how they are doing.
+A standalone terminal app built with [pmin](https://github.com/CurtisD4q/pmin), like [cairn](https://github.com/CurtisD4q/cairn) and [susynth](https://github.com/CurtisD4q/susynth): one program, no daemon, no database. The same program records your jobs, checks them in the background, and shows how they are doing.
 
 ![The menu: every screen grouped under Watch, Set up and Help, each with the key that opens it, and beside it the jobs, the check and the latest alert at a glance](screenshots/menu.png)
 
@@ -54,7 +54,7 @@ It is one static program with nothing else to install. Each archive also holds t
 
 Arch users can build the `jobwatch-bin` package from [`packaging/aur`](packaging/aur), and Gentoo users the ebuild in [`packaging/gentoo`](packaging/gentoo); both install the release archive.
 
-Building from source needs the Mint libraries it is built on, which are private, so only their owner can build it (`make build`, `make dist`).
+Building from source needs the pmin libraries it is built on, which are private, so only their owner can build it (`make build`, `make dist`).
 
 ## Getting started
 
@@ -137,7 +137,7 @@ Of what a command printed, the last 2,000 characters are kept, with passwords an
 - **Jobs without end times** (a cron log) are marked lower confidence.
 - **Contention between jobs is always worded as a hint.** Moving one job is the test.
 
-The false-alarm rate and the detection of planted faults are measured against a simulator, with a scorecard every change has to hold or improve. It lives in [mint-loom](https://github.com/CurtisD4q/mint-loom/blob/main/health/SCORECARD.md).
+The false-alarm rate and the detection of planted faults are measured against a simulator, with a scorecard every change has to hold or improve. It lives in [pmin-jobhealth](https://github.com/CurtisD4q/pmin-jobhealth/blob/main/SCORECARD.md).
 
 ## Safety, and what it does not do
 
@@ -166,7 +166,7 @@ emacs -batch -l jobwatch.el -l jobwatch-test.el -f ert-run-tests-batch-and-exit
 
 ## Built from
 
-jobwatch is a program over [mint-loom](https://github.com/CurtisD4q/mint-loom)'s recording and health checks, with [mint-kit](https://github.com/CurtisD4q/mint-kit) for the interface. The checks, the simulator and the scorecard live in mint-loom; jobwatch's own commands (`internal/jw`) and screens (`internal/screens`) live here.
+jobwatch is a program built with pmin (tier `example` in `pmin.json`). [pmin-loom](https://github.com/CurtisD4q/pmin-loom) records the jobs and reads their history, [pmin-jobhealth](https://github.com/CurtisD4q/pmin-jobhealth) (the engine behind Loom's health checks) judges them, and [pmin-kit](https://github.com/CurtisD4q/pmin-kit) draws the screens. Loom never imports the engine, so jobwatch uses pmin-jobhealth directly: its checks, alert tracking, mutes and the day picture. The checks, the simulator and the scorecard live in pmin-jobhealth; jobwatch's own commands (`internal/jw`) and screens (`internal/screens`) live here.
 
 ## Licence
 

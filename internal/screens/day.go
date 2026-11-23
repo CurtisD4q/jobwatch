@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	mint "github.com/CurtisD4q/mint-kit"
-	"github.com/CurtisD4q/mint-loom/health"
+	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
+	mint "github.com/CurtisD4q/pmin-kit"
 )
 
 // Day is the 24-hour screen: each job's usual run, the slow tail, and the
@@ -15,7 +15,7 @@ import (
 // row that is chosen, so opening a job's evidence from the day is the same
 // action as opening it from the list.
 //
-// The bar is the one health.Day draws, only wider: two columns an hour is
+// The bar is the one jobhealth.Day draws, only wider: two columns an hour is
 // 48 columns, which leaves the right half of a normal terminal empty. Here
 // it is drawn at whatever width the screen has, so the gap before the next
 // job is a distance you can see rather than a sentence to read. The usual
@@ -31,7 +31,7 @@ func Day(o Options) *mint.Screen {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
 		}
-		_, bars := health.DayTimeline(jobs, now)
+		_, bars := jobhealth.DayTimeline(jobs, now)
 		// The name's own column, then a space, then the bar: the bar gets
 		// the rest of the terminal, so a wider window shows a wider day.
 		indent, width := dayLayout(termCols())
@@ -91,7 +91,7 @@ func dayLayout(cols int) (indent, width int) {
 
 // BarWidth is how wide the day's bar is drawn in a terminal of this size:
 // the screen less the name's column, and never narrower than the two
-// columns an hour health.Day draws (so a small window shortens the names'
+// columns an hour jobhealth.Day draws (so a small window shortens the names'
 // column first, and the day last).
 func BarWidth(_, cols int) int {
 	if cols <= 0 {
@@ -107,9 +107,9 @@ func BarWidth(_, cols int) int {
 const dayNameWidth = 25
 
 // dayCols is the narrowest bar drawn: two columns an hour, the width
-// health.Day uses. A screen narrower than that keeps this width rather
+// jobhealth.Day uses. A screen narrower than that keeps this width rather
 // than drawing a day too small to read.
-const dayCols = health.DayWidth - 4
+const dayCols = jobhealth.DayWidth - 4
 
 // drawBar is one job's bar across the day: midnight on the left, midnight
 // on the right, as wide as the screen allows.
@@ -122,7 +122,7 @@ const dayCols = health.DayWidth - 4
 // A job whose slow tail reaches the next job's start has no gap to draw,
 // and its tail runs straight into the mark: that is what a job running
 // into another job looks like.
-func drawBar(b health.Bar, width int) string {
+func drawBar(b jobhealth.Bar, width int) string {
 	if width < dayCols {
 		width = dayCols
 	}
@@ -209,7 +209,7 @@ func pivot(s string, width int) string {
 // longGap is what the bar cannot show about a job: a gap too long to draw
 // as a distance (no job starts on this day), or that it never recorded how
 // long it runs, so there was no run to draw.
-func longGap(b health.Bar) string {
+func longGap(b jobhealth.Bar) string {
 	switch {
 	case b.Slow <= b.Start:
 		if b.Period >= weekly {
@@ -230,7 +230,7 @@ func longGap(b health.Bar) string {
 // sayDay is a job's line in words: what its slow runs leave before the
 // next job starts, or that it runs past it. The drawn bar shows the gap
 // itself, so this is for reading rather than looking.
-func sayDay(b health.Bar, mark bool) string {
+func sayDay(b jobhealth.Bar, mark bool) string {
 	switch {
 	case b.Slow <= b.Start:
 		return ""
