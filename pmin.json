@@ -5,6 +5,7 @@
   "summary": "A backup and job health program built with pmin: Loom keeps the jobs, pmin-jobhealth judges them",
   "audience": "user",
   "requires": [
+    "pmin-base",
     "pmin-jobhealth",
     "pmin-kit",
     "pmin-loom",
