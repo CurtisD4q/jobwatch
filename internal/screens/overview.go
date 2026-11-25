@@ -15,10 +15,17 @@ import (
 // terminal they stack. The amber line says the one thing most worth doing,
 // and the footer says how things stand.
 func Overview(o Options) *mint.Screen {
-	s := &mint.Screen{Icon: "✦", Title: "Overview", TopTitle: "Jobs", TopWidth: 1.1, Hints: keyHints, SectionSpacing: 1}
+	s := &mint.Screen{Icon: "✦", Title: "Overview", TopTitle: "Jobs", TopWidth: 1.1, Hints: keyHints, SectionSpacing: 1, Boxed: true}
 	today := &mint.Pane{Title: "Today", Beside: true, Width: 0.9}
 	check := &mint.Pane{Title: "Background check", Beside: true, Width: 1.2}
 	s.Panes = []*mint.Pane{today, check}
+	jobCount := 0
+	s.TopInfo = func() string {
+		if jobCount == 0 {
+			return ""
+		}
+		return fmt.Sprintf("%d", jobCount)
+	}
 	s.Refresh = func(s *mint.Screen) {
 		jobs, rep, _, err := o.check()
 		if err != nil {
@@ -27,6 +34,7 @@ func Overview(o Options) *mint.Screen {
 			return
 		}
 		cs := o.checkSettings()
+		jobCount = len(rep.Statuses)
 		s.Sections = overviewJobs(o, rep)
 		s.Banner = overviewBanner(rep, cs.On, len(rep.Statuses))
 		today.Sections = overviewToday(o, jobs)

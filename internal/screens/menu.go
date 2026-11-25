@@ -49,7 +49,7 @@ func menuGroups() []struct {
 // that opens it from anywhere, and beside it how things stand at a glance.
 // On a narrow terminal the two stack.
 func Menu(o Options) *mint.Screen {
-	s := &mint.Screen{Icon: "✦", Title: "Menu", TopTitle: "Go to", TopWidth: 1.2, Hints: keyHints}
+	s := &mint.Screen{Icon: "✦", Title: "Menu", TopTitle: "Go to", TopWidth: 1.2, Hints: keyHints, Boxed: true}
 	glance := &mint.Pane{Title: "At a glance", Beside: true, Width: 1}
 	s.Panes = []*mint.Pane{glance}
 	s.Refresh = func(s *mint.Screen) {
