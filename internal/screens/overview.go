@@ -61,26 +61,19 @@ func overviewJobs(o Options, rep jobhealth.Report) []mint.Section {
 	if len(rep.Statuses) == 0 {
 		return firstSteps(o)
 	}
-	statuses := append([]jobhealth.Status(nil), rep.Statuses...)
-	// worst first, then by name, so what needs looking at is on top
-	sort.SliceStable(statuses, func(i, j int) bool {
-		if statuses[i].Level != statuses[j].Level {
-			return statuses[i].Level > statuses[j].Level
-		}
-		return statuses[i].Job < statuses[j].Job
-	})
-	var rows []mint.Row
-	for _, st := range statuses {
-		st := st
-		label := st.Job
-		if st.Confidence == "low" {
-			label += " ◌"
-		}
-		state := shortState(st)
-		rows = append(rows, mint.Action(mint.ActionOpts{ID: "ov-" + st.Job, Label: label, Alert: st.Level == jobhealth.Problem,
-			Get:        func() string { return state },
-			OnActivate: func(ctx *mint.Ctx) { ctx.Push(Evidence(o, st.Job)) }}))
+	statuses := worstFirst(rep.Statuses)
+	cells := make([][]string, len(statuses))
+	for i, st := range statuses {
+		cells[i] = []string{jobLabel(st), shortState(st)}
 	}
+	rows := []mint.Row{mint.Table(mint.TableOpts{
+		ID:       "ov-jobs",
+		Headers:  []string{"Job", "State"},
+		Rows:     cells,
+		Columns:  []mint.Column{{}, {Dim: true}},
+		Mark:     func(i int, _ []string) mint.Mark { return jobMark(statuses[i]) },
+		OnSelect: func(ctx *mint.Ctx, i int, _ []string) { ctx.Push(Evidence(o, statuses[i].Job)) },
+	})}
 	more := []mint.Row{
 		mint.Action(mint.ActionOpts{ID: "ov-add", Label: "+ Add a job", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
 		mint.Action(mint.ActionOpts{ID: "ov-import", Label: "⇣ Import history", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),

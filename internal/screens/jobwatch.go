@@ -5,6 +5,8 @@ import (
 	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
 	mint "github.com/CurtisD4q/pmin-kit"
 	"github.com/CurtisD4q/pmin-kit/layouts"
+	"sort"
+	"strings"
 	"time"
 )
 
@@ -44,10 +46,21 @@ func Entries(o Options) []mint.HomeItem {
 // evidence, and the day is one key away, so the two views share the same
 // selection.
 func Jobs(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "✦", Title: "Jobs"}
+	scr := &mint.Screen{Icon: "✦", Title: "Jobs", TopTitle: "Jobs", Boxed: true, TopWidth: 1.3}
 	scr.Poll = o.live()
+	var rep jobhealth.Report
+	scr.TopInfo = func() string {
+		if n := len(rep.Statuses); n > 0 {
+			return plural(n, "job") + " · worst first"
+		}
+		return ""
+	}
+	details := &mint.Pane{Title: "Details", Beside: true, Width: 1}
+	details.Refresh = func(p *mint.Pane) { p.Sections = jobCard(o, scr, rep) }
+	scr.Panes = []*mint.Pane{details}
 	scr.Refresh = func(s *mint.Screen) {
-		_, rep, _, err := o.check()
+		var err error
+		_, rep, _, err = o.check()
 		if err != nil {
 			s.Sections = []mint.Section{{Rows: []mint.Row{mint.Note("Could not read the runs: " + err.Error())}}}
 			return
@@ -60,35 +73,108 @@ func Jobs(o Options) *mint.Screen {
 			}}}
 			return
 		}
-		var rows []mint.Row
-		for _, st := range rep.Statuses {
-			st := st
-			val := shortState(st)
+		statuses := worstFirst(rep.Statuses)
+		cells := make([][]string, len(statuses))
+		for i, st := range statuses {
+			last := "never"
 			if !st.LastOK.IsZero() {
-				val += " · " + ago(o.now().Sub(st.LastOK))
+				last = since(o.now().Sub(st.LastOK))
 			}
-			label := st.Job
-			if st.Confidence == "low" {
-				label += " ◌"
-			}
-			rows = append(rows, mint.Action(mint.ActionOpts{
-				ID: "jw-" + st.Job, Label: label, Alert: st.Level == jobhealth.Problem,
-				Get: func() string { return val },
-				OnActivate: func(ctx *mint.Ctx) {
-					ctx.Push(Evidence(o, st.Job))
-				},
-			}))
+			cells[i] = []string{jobLabel(st), shortState(st), last, fmt.Sprint(st.Runs)}
 		}
-		note := "Each job's state, and how long since it last succeeded."
+		table := mint.Table(mint.TableOpts{
+			ID:      "jobs",
+			Headers: []string{"Job", "State", "Last success", "Runs"},
+			Rows:    cells,
+			Columns: []mint.Column{{}, {}, {Dim: true, Right: true}, {Dim: true, Right: true}},
+			Mark:    func(i int, _ []string) mint.Mark { return jobMark(statuses[i]) },
+			OnSelect: func(ctx *mint.Ctx, i int, _ []string) {
+				ctx.Push(Evidence(o, statuses[i].Job))
+			},
+		})
+		note := "Enter opens a job with the numbers behind it."
 		for _, st := range rep.Statuses {
 			if st.Confidence == "low" {
 				note += " ◌ read from an outside log, so lower confidence."
 				break
 			}
 		}
-		s.Sections = []mint.Section{{Name: "Jobs", Rows: rows}, {Rows: wrapped(note, "")}}
+		s.Sections = []mint.Section{{Rows: []mint.Row{table}}, {Rows: wrapped(note, "")}}
 	}
 	return o.withKeys(scr)
+}
+
+// jobCard is the details of the job under the cursor: its state in a
+// sentence, then what was found about it.
+func jobCard(o Options, scr *mint.Screen, rep jobhealth.Report) []mint.Section {
+	sel, ok := scr.Selected()
+	if !ok || sel.Index < 0 {
+		return []mint.Section{{Rows: []mint.Row{mint.Note("Move to a job to see it here.")}}}
+	}
+	statuses := worstFirst(rep.Statuses)
+	if sel.Index >= len(statuses) {
+		return nil
+	}
+	st := statuses[sel.Index]
+	facts := []string{shortState(st) + " · " + plural(st.Runs, "run")}
+	if !st.LastOK.IsZero() {
+		facts = append(facts, "last succeeded "+since(o.now().Sub(st.LastOK)))
+	}
+	body := sentence(st.Says)
+	if body == "" {
+		body = sentence(st.State)
+	}
+	if st.Confidence == "low" {
+		body += "\n\nRead from an outside log, so this is lower confidence."
+	}
+	var found []string
+	for _, f := range rep.Findings {
+		// The state already says the worst finding; list the others.
+		if f.Job == st.Job && f.Says != st.Says {
+			found = append(found, capital(f.Level.String())+": "+sentence(f.Says))
+		}
+	}
+	if len(found) > 0 {
+		body += "\n\n" + strings.Join(found, "\n\n")
+	}
+	body += "\n\nEnter on the job opens the runs and settings."
+	return []mint.Section{{Rows: []mint.Row{mint.Card(mint.CardOpts{Key: st.Job, Title: st.Job, Facts: facts, Body: body})}}}
+}
+
+// worstFirst sorts jobs worst first, then by name, so what needs looking
+// at is on top.
+func worstFirst(in []jobhealth.Status) []jobhealth.Status {
+	out := append([]jobhealth.Status(nil), in...)
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Level != out[j].Level {
+			return out[i].Level > out[j].Level
+		}
+		return out[i].Job < out[j].Job
+	})
+	return out
+}
+
+// jobLabel is a job's name, marked ◌ when it is known only from an
+// outside log.
+func jobLabel(st jobhealth.Status) string {
+	if st.Confidence == "low" {
+		return st.Job + " ◌"
+	}
+	return st.Job
+}
+
+// jobMark is the mark beside a job in a list: what state it is in, at a
+// glance.
+func jobMark(st jobhealth.Status) mint.Mark {
+	switch {
+	case st.Level == jobhealth.Problem:
+		return mint.Mark{Glyph: "!", Kind: mint.BadgeError}
+	case st.Level == jobhealth.Warn:
+		return mint.Mark{Glyph: "●", Kind: mint.BadgeWarn}
+	case st.State == "new":
+		return mint.Mark{Glyph: "○", Kind: mint.BadgeIdle}
+	}
+	return mint.Mark{Glyph: "✓", Kind: mint.BadgeOK}
 }
 
 // Evidence is one job's screen: every finding about it, with the numbers
@@ -169,6 +255,27 @@ func wrapped(text, indent string) []mint.Row {
 		rows = append(rows, mint.Note(indent+l))
 	}
 	return rows
+}
+
+// since is how long ago something was, for a list or a card: "just now",
+// "40m ago", "3d ago".
+func since(d time.Duration) string {
+	if d < time.Minute {
+		return "just now"
+	}
+	return ago(d) + " ago"
+}
+
+// sentence is s with a capital letter and a full stop.
+func sentence(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	if !strings.HasSuffix(s, ".") && !strings.HasSuffix(s, "!") && !strings.HasSuffix(s, "?") {
+		s += "."
+	}
+	return capital(s)
 }
 
 // ago is a time since, in a few characters: "40m", "5h", "3d".
