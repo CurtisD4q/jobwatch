@@ -6,6 +6,8 @@ Most backup failures are slow and predictable: data grows, runs take longer, the
 
 A standalone terminal app built with [pmin](https://github.com/CurtisD4q/pmin), like [cairn](https://github.com/CurtisD4q/cairn) and [susynth](https://github.com/CurtisD4q/susynth): one program, no daemon, no database. The same program records your jobs, checks them in the background, and shows how they are doing.
 
+**Install:** `curl -fsSL https://raw.githubusercontent.com/CurtisD4q/jobwatch/main/install.sh | sh` (Linux and macOS; [more ways below](#install)).
+
 ![The menu: every screen grouped under Watch, Set up and Help, each with the key that opens it, and beside it the jobs, the check and the latest alert at a glance](screenshots/menu.png)
 
 jobwatch opens on the menu: every screen, the key that opens it from anywhere, and how things stand at a glance.
@@ -39,15 +41,15 @@ On a narrow terminal the panes stack, so it works over ssh from a phone:
 
 ## Install
 
-Download, check and install the latest release in one go (Linux and macOS):
+One command downloads the latest release, checks it against its checksum and installs it:
 
 ```
-gh api repos/CurtisD4q/jobwatch/contents/install.sh -H 'Accept: application/vnd.github.raw' | sh
+curl -fsSL https://raw.githubusercontent.com/CurtisD4q/jobwatch/main/install.sh | sh
 ```
 
-While the repository is private this needs the [GitHub CLI](https://cli.github.com), logged in (`gh auth login`). Once it is public, `curl -fsSL https://raw.githubusercontent.com/CurtisD4q/jobwatch/main/install.sh | sh` does the same. Add `-s -- --system` after `sh` to install for everyone in `/usr/local`.
+That is the whole job: no Go, no source checkout and no access to any other repository is needed. `jobwatch` goes into `~/.local/bin`, with `jobwatch.el` for Emacs beside its data. It is one static program with nothing else to install. If that folder is not on your PATH, the installer prints the line to add. After that, run `jobwatch` from anywhere. To install for everyone in `/usr/local` instead, add `-s -- --system` after `sh`.
 
-Or by hand: download the archive for your machine from Releases, check it against `SHA256SUMS`, unpack it and run `./jobwatch install`. Either way jobwatch ends up in `~/.local/bin`, with `jobwatch.el` for Emacs beside its data, and the download can be deleted. It is one static program with nothing else to install. To check that an archive was built from this repository by its release workflow: `gh attestation verify jobwatch-VERSION-linux-amd64.tar.gz --repo CurtisD4q/jobwatch`.
+Or by hand: download the archive for your machine from Releases, check it against `SHA256SUMS`, unpack it and run `./jobwatch install`. The download can be deleted afterwards. To check that an archive was built from this repository by its release workflow: `gh attestation verify jobwatch-VERSION-linux-amd64.tar.gz --repo CurtisD4q/jobwatch`.
 
 Arch users can build the `jobwatch-bin` package from [`packaging/aur`](packaging/aur), and Gentoo users the ebuild in [`packaging/gentoo`](packaging/gentoo); both install the release archive.
 
@@ -55,7 +57,7 @@ To remove it: `jobwatch uninstall`. Your settings and data are kept.
 
 ### Build from source
 
-Needs Go and access to the private pmin libraries:
+Most people do not need this; the install command above is enough. Building needs Go and access to the private pmin libraries, which are not public:
 
 ```
 git clone https://github.com/CurtisD4q/jobwatch
