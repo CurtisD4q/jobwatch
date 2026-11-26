@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/CurtisD4q/pmin-base v0.0.0-20261123203826-23ade10c5ef5
 	github.com/CurtisD4q/pmin-jobhealth v0.0.0-20261122215810-5ac92606b92f
-	github.com/CurtisD4q/pmin-kit v0.0.0-20261126221638-d35ae3202cc1
+	github.com/CurtisD4q/pmin-kit v0.0.0-20261126225742-7a2cfff9e019
 	github.com/CurtisD4q/pmin-loom v0.0.0-20261122205240-c07654716077
 	github.com/CurtisD4q/pmin-tools v0.0.0-20261122210950-258e432ca1b6
 )
