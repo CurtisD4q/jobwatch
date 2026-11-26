@@ -10,7 +10,7 @@ A standalone terminal app built with [pmin](https://github.com/CurtisD4q/pmin), 
 
 ![The menu: every screen grouped under Watch, Set up and Help, each with the key that opens it, and beside it the jobs, the check and the latest alert at a glance](screenshots/menu.png)
 
-jobwatch opens on the menu: every screen, the key that opens it from anywhere, and how things stand at a glance.
+jobwatch opens on its launch menu. On every screen after that the pages run down the left (`m` moves into them), and the top line says where you are and how things stand: the jobs, the check and the latest alert.
 
 ## Screenshots
 
@@ -92,7 +92,7 @@ The same on every screen:
 
 | Key | Opens |
 |---|---|
-| `m` | Menu, the first screen |
+| `m` | The pages down the left: ↑↓ to choose, Enter to open, `m` or Esc to go back |
 | `o` | Overview |
 | `d` | The day |
 | `a` | Alerts |

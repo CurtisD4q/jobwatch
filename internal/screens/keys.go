@@ -18,7 +18,6 @@ type jump struct {
 // function, not a variable, because the screens it opens use it too.
 func jumps() []jump {
 	return []jump{
-		{"m", "Menu", Menu},
 		{"o", "Overview", Overview},
 		{"d", "The day", Day},
 		{"a", "Alerts", Alerts},
@@ -30,7 +29,7 @@ func jumps() []jump {
 	}
 }
 
-const keyHints = " ↑↓ move   ⏎ open   m menu   ? help   b back   q quit "
+const keyHints = " ↑↓ move   ⏎ open   ? help   b back   q quit "
 
 // withKeys gives a screen jobwatch's keys: each opens its screen (not the
 // one already showing), and r reads everything again.

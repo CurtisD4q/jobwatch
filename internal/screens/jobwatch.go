@@ -34,8 +34,6 @@ func Entries(o Options) []mint.HomeItem {
 			Open: func() *mint.Screen { return Import(o) }},
 		{Icon: "◉", Label: "Background check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
 			Open: func() *mint.Screen { return BackgroundCheck(o) }},
-		{Icon: "✦", Label: "Menu", Desc: "Every screen with its key, and how things stand at a glance (m from any screen)",
-			Open: func() *mint.Screen { return Menu(o) }},
 		{Icon: "?", Label: "How this works", Desc: "What jobwatch does, in a few steps",
 			Open: func() *mint.Screen { return Guide(o) }},
 		{Icon: "⚙", Label: "Keys and settings", Desc: "The keys, where things are kept, and how it looks",
@@ -67,6 +65,50 @@ func HomeNote(o Options) string {
 // and the background check.
 func HomeStatus(o Options) func() []mint.Badge {
 	return func() []mint.Badge { return o.badges() }
+}
+
+// HomeContext is the line after the trail at the top of every screen: the
+// jobs, the check and the latest alert, in a few words.
+func HomeContext(o Options) func() string {
+	return func() string {
+		_, rep, _, err := o.check()
+		if err != nil {
+			return "could not read the runs"
+		}
+		problems, warnings := 0, 0
+		for _, st := range rep.Statuses {
+			switch st.Level {
+			case jobhealth.Problem:
+				problems++
+			case jobhealth.Warn:
+				warnings++
+			}
+		}
+		jobs := "no jobs yet"
+		switch n := len(rep.Statuses); {
+		case n == 0:
+		case problems > 0:
+			jobs = plural(n, "job") + ", " + plural(problems, "problem")
+		case warnings > 0:
+			jobs = plural(n, "job") + ", " + plural(warnings, "warning")
+		default:
+			jobs = plural(n, "job") + ", all fine"
+		}
+		cs := o.checkSettings()
+		check := "check off"
+		if cs.On {
+			check = "check on"
+			if cs.Shadow {
+				check = "check in shadow"
+			}
+		}
+		out := jobs + " · " + check
+		if al := o.recentAlerts(1); len(al) > 0 {
+			job, _, _ := strings.Cut(al[0].Text, ":")
+			out += " · last alert " + al[0].When.Local().Format("15:04") + " " + job
+		}
+		return out
+	}
 }
 
 // Jobs is jobwatch's first screen: one row a job, its state, when it last
