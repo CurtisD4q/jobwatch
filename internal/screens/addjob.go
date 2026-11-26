@@ -15,7 +15,7 @@ import (
 // confirmed before it is written, and can be undone. Lines that need the
 // shell are explained, not changed.
 func AddJobs(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "+", Title: "Add a job"}
+	scr := &mint.Screen{Icon: "+", Title: "Add job"}
 	scr.Refresh = func(s *mint.Screen) {
 		lines, err := o.cronLines()
 		if err != nil {

@@ -19,13 +19,13 @@ type jump struct {
 func jumps() []jump {
 	return []jump{
 		{"o", "Overview", Overview},
-		{"d", "The day", Day},
+		{"d", "Day", Day},
 		{"a", "Alerts", Alerts},
-		{"c", "Background check", BackgroundCheck},
-		{"n", "Add a job", AddJobs},
-		{"i", "Import history", Import},
-		{"?", "How this works", Guide},
-		{"s", "Keys and settings", Settings},
+		{"c", "Check", BackgroundCheck},
+		{"n", "Add job", AddJobs},
+		{"i", "Import", Import},
+		{"?", "Guide", Guide},
+		{"s", "Settings", Settings},
 	}
 }
 
@@ -53,7 +53,7 @@ func (o Options) withKeys(scr *mint.Screen) *mint.Screen {
 
 // Settings is the keys, where jobwatch keeps things, and how it looks.
 func Settings(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "⚙", Title: "Keys and settings"}
+	scr := &mint.Screen{Icon: "⚙", Title: "Settings"}
 	scr.Refresh = func(s *mint.Screen) {
 		var keys []mint.Row
 		for _, j := range jumps() {

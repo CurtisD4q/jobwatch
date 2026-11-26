@@ -20,7 +20,7 @@ func overviewText(o Options) string {
 func TestOverviewFirstRun(t *testing.T) {
 	o := Options{Book: &loom.Book{Dir: t.TempDir(), Exec: tabExec{}}, snap: newSnapshot()}
 	frame := overviewText(o)
-	for _, w := range []string{"No jobs yet", "1. Add a job from your crontab", "3. Turn on the check, in shadow", "2. Import history", "How this works", "jobwatch record NAME --", "Today", "Background check"} {
+	for _, w := range []string{"No jobs yet", "1. Add a job from your crontab", "3. Turn on the check, in shadow", "2. Import", "Guide", "jobwatch record NAME --", "Today", "Check"} {
 		if !strings.Contains(frame, w) {
 			t.Errorf("lacks %q:\n%s", w, frame)
 		}
@@ -38,7 +38,7 @@ func TestOverviewWithJobs(t *testing.T) {
 	loom.HandleArgs(b, []string{loom.RecordFlag, "prune", "--", "true"})
 	o := Options{Book: b, snap: newSnapshot()}
 	frame := overviewText(o)
-	for _, w := range []string{"1 problem: backup is failing", "backup", "failing", "prune", "+ Add a job", "Latest alerts", "No alerts yet"} {
+	for _, w := range []string{"1 problem: backup is failing", "backup", "failing", "prune", "+ Add job", "Latest alerts", "No alerts yet"} {
 		if !strings.Contains(frame, w) {
 			t.Errorf("lacks %q:\n%s", w, frame)
 		}

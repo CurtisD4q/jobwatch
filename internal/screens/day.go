@@ -22,7 +22,7 @@ import (
 // run is solid, the slow tail lighter, and the gap before the next job is
 // drawn out to where that job starts.
 func Day(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "◷", Title: "The day"}
+	scr := &mint.Screen{Icon: "◷", Title: "Day"}
 	scr.Poll = o.live()
 	scr.Refresh = func(s *mint.Screen) {
 		now := o.now()

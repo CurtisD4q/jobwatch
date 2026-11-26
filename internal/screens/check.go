@@ -18,7 +18,7 @@ func (o Options) jwOpts() jw.Options {
 // an action with its change shown first and an undo; the two modes are
 // saved settings that the next run picks up.
 func BackgroundCheck(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "⏲", Title: "Background check"}
+	scr := &mint.Screen{Icon: "⏲", Title: "Check"}
 	scr.Refresh = func(s *mint.Screen) {
 		cs := o.checkSettings()
 		state := "off"

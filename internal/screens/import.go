@@ -57,7 +57,7 @@ func timerServices(exec action.Executor) []timerService {
 // journal, or an rsync, rclone or cron log. The runs are kept apart from
 // recorded ones and marked lower confidence; the log lines are not kept.
 func Import(o Options) *mint.Screen {
-	scr := &mint.Screen{Icon: "⇣", Title: "Import history"}
+	scr := &mint.Screen{Icon: "⇣", Title: "Import"}
 	var services []timerService
 	listed := false
 	scr.Refresh = func(s *mint.Screen) {

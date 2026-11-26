@@ -58,7 +58,7 @@ func TestEveryScreenFitsItsWidth(t *testing.T) {
 				}
 			}
 			frame := strings.Join(grid(scr.FrameText(40, width), 40, width), "\n")
-			if os.Getenv("SHOW") != "" && (item.Label == "Overview" || item.Label == "The day") && width == 52 {
+			if os.Getenv("SHOW") != "" && (item.Label == "Overview" || item.Label == "Day") && width == 52 {
 				t.Log("\n" + frame)
 			}
 			if !strings.Contains(frame, scr.Title) {

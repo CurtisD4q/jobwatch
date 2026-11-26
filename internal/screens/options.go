@@ -22,7 +22,7 @@ type Options struct {
 	// Home is the history cron lines record into (see jw.Options.Home).
 	Home string
 
-	// Version is jobwatch's version, shown on Keys and settings.
+	// Version is jobwatch's version, shown on Settings.
 	Version string
 
 	snap *snapshot // shared by the screens Entries makes; nil: each works alone

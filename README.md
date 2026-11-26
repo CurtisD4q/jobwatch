@@ -18,12 +18,12 @@ jobwatch opens on its launch menu. On every screen after that the pages run down
 |---|---|
 | ![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png) | ![A job's evidence: why it is overdue and failing, what it said, and its recent runs](screenshots/job.png) |
 | **The overview.** The jobs worst first, today's usual starts, and the background check with its latest alerts. | **The evidence.** Open a job for every finding, with the numbers behind it, what the command said when it failed, and its runs. |
-| ![The day: each job's usual run, its slow tail, and the gap before the next job starts](screenshots/day.png) | ![Add a job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
-| **The day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add a job.** Your crontab, line by line, and whether each is recorded. |
+| ![Day: each job's usual run, its slow tail, and the gap before the next job starts](screenshots/day.png) | ![Add job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
+| **Day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add job.** Your crontab, line by line, and whether each is recorded. |
 | ![The one change to the crontab, before and after, with how to put it back](screenshots/confirm.png) | ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) |
 | **One change, shown first.** The line before and after, and how to undo it, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
-| ![How this works: what jobwatch is for, in five steps](screenshots/guide.png) | |
-| **How this works.** A one-page guide, one key away on every screen. | |
+| ![Guide: what jobwatch is for, in five steps](screenshots/guide.png) | |
+| **Guide.** A one-page guide, one key away on every screen. | |
 
 On a narrow terminal the panes stack, so it works over ssh from a phone:
 
@@ -37,7 +37,7 @@ On a narrow terminal the panes stack, so it works over ssh from a phone:
 - **The evidence, not a verdict.** Every finding shows the runs used, the test, and a date range rather than a single date.
 - **A background check, tried safely.** It runs from your crontab or a systemd timer. Start it in **shadow**, where it writes what it would have sent and sends nothing; switch it to sending when you trust it.
 - **Your history from day one.** Import a timer's service from the journal, or an rsync, rclone or cron log, so there is something to go on before jobwatch has recorded a run. Imported runs are marked ◌, lower confidence.
-- **Re-spacing, suggested.** Start times that would overlap less, for you to change by hand.
+- **Respace, suggested.** Start times that would overlap less, for you to change by hand.
 
 ## Install
 
@@ -72,8 +72,8 @@ After `make install` the cloned folder can be deleted. To clone and fetch the li
 
 Run `jobwatch`. It opens on the menu; with no jobs yet, the amber line there says where to start, and the overview (`o`) lists the first steps:
 
-1. **Add a job** (`n`). Choose a line of your crontab. jobwatch shows the one change that records its runs, before and after, and makes it when you agree, with undo. The job keeps its schedule, and its output and exit code still reach cron, so cron still mails a failure.
-2. **Import history** (`i`). Read a timer's service from the journal (yours or the system's), or an rsync, rclone or cron log.
+1. **Add job** (`n`). Choose a line of your crontab. jobwatch shows the one change that records its runs, before and after, and makes it when you agree, with undo. The job keeps its schedule, and its output and exit code still reach cron, so cron still mails a failure.
+2. **Import** (`i`). Read a timer's service from the journal (yours or the system's), or an rsync, rclone or cron log.
 3. **Turn on the background check, in shadow** (`c`). Leave it a week or two and compare what it would have sent with what really happened, then switch it to sending.
 4. **Read the overview** (`o`). Missed and failed runs show at once. Slowing down, running into the next job and a step to a new level need some runs first, and say how sure they are.
 5. **Open a job** (Enter) for the evidence. Mute a finding you already know about, or delete the job's history.
@@ -94,13 +94,13 @@ The same on every screen:
 |---|---|
 | `m` | The pages down the left: ↑↓ to choose, Enter to open, `m` or Esc to go back |
 | `o` | Overview |
-| `d` | The day |
+| `d` | Day |
 | `a` | Alerts |
-| `c` | Background check |
-| `n` | Add a job |
-| `i` | Import history |
-| `?` | How this works |
-| `s` | Keys and settings |
+| `c` | Check |
+| `n` | Add job |
+| `i` | Import |
+| `?` | Guide |
+| `s` | Settings |
 | `r` | Read the history and crontab again |
 
 Arrows move, Enter opens or changes, Tab moves between panes, `[` `]` size them, `y` copies, `b` goes back, `q` quits. The mouse works too. `MINT_KEYS=emacs` or `vim` adds those key styles. Colours are jobwatch's own until you pick a theme on the Theme screen, or set `MINT_PALETTE`.
@@ -120,7 +120,7 @@ jobwatch import journal --unit UNIT [--user]   read history jobwatch did not rec
 jobwatch respace                     suggest start times; nothing is applied
 ```
 
-`jobwatch --screen "The day"` opens one screen directly, and `jobwatch --version` says which version you have.
+`jobwatch --screen "Day"` opens one screen directly, and `jobwatch --version` says which version you have.
 
 ## Where things are kept
 
@@ -153,7 +153,7 @@ The false-alarm rate and the detection of planted faults are measured against a 
 
 ## Safety, and what it does not do
 
-- **It never changes a schedule** and never stops or moves a job. Re-spacing is a suggestion.
+- **It never changes a schedule** and never stops or moves a job. Respace is a suggestion.
 - **The crontab is changed only when you agree**, one line at a time, with the line before and after shown first and an undo. A line that needs the shell (a redirect, a pipe) is not changed; jobwatch says to put it in a script.
 - **Recorded commands run directly, never through a shell**, with their output and exit code passed straight through.
 - **Reading is read-only.** Import lists timers with `systemctl list-timers` and reads with `journalctl`; neither changes anything.

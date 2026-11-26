@@ -19,7 +19,7 @@ var respaceWindows = []time.Duration{30 * time.Minute, time.Hour, 2 * time.Hour,
 // in by hand.
 func Respace(o Options) *mint.Screen {
 	window := 2 * time.Hour
-	scr := &mint.Screen{Icon: "⇄", Title: "Re-spacing"}
+	scr := &mint.Screen{Icon: "⇄", Title: "Respace"}
 	scr.Refresh = func(s *mint.Screen) {
 		jobs, _, _, err := o.check()
 		if err != nil {

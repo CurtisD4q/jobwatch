@@ -34,7 +34,7 @@ func TestAddJobsListsTheCrontab(t *testing.T) {
 		t.Error("empty crontab")
 	}
 	if len(Entries(Options{Book: b})) != 10 {
-		t.Error("Add a job is not on the home list")
+		t.Error("Add job is not on the home list")
 	}
 }
 

@@ -75,8 +75,8 @@ func overviewJobs(o Options, rep jobhealth.Report) []mint.Section {
 		OnSelect: func(ctx *mint.Ctx, i int, _ []string) { ctx.Push(Evidence(o, statuses[i].Job)) },
 	})}
 	more := []mint.Row{
-		mint.Action(mint.ActionOpts{ID: "ov-add", Label: "+ Add a job", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
-		mint.Action(mint.ActionOpts{ID: "ov-import", Label: "⇣ Import history", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "ov-add", Label: "+ Add job", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "ov-import", Label: "⇣ Import", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
 	}
 	secs := []mint.Section{{Rows: rows}, {Rows: more}}
 	for _, st := range statuses {
@@ -92,9 +92,9 @@ func overviewJobs(o Options, rep jobhealth.Report) []mint.Section {
 func firstSteps(o Options) []mint.Section {
 	return []mint.Section{{Name: "No jobs yet", Rows: append(append(wrapped("jobwatch watches jobs it has recorded. Start here:", ""),
 		mint.Action(mint.ActionOpts{ID: "fs-add", Label: "1. Add a job from your crontab", OnActivate: func(ctx *mint.Ctx) { ctx.Push(AddJobs(o)) }}),
-		mint.Action(mint.ActionOpts{ID: "fs-import", Label: "2. Import history", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "fs-import", Label: "2. Import", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Import(o)) }}),
 		mint.Action(mint.ActionOpts{ID: "fs-check", Label: "3. Turn on the check, in shadow", OnActivate: func(ctx *mint.Ctx) { ctx.Push(BackgroundCheck(o)) }}),
-		mint.Action(mint.ActionOpts{ID: "fs-guide", Label: "How this works", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Guide(o)) }}),
+		mint.Action(mint.ActionOpts{ID: "fs-guide", Label: "Guide", OnActivate: func(ctx *mint.Ctx) { ctx.Push(Guide(o)) }}),
 	), wrapped("Or put "+o.command()+" record NAME -- in front of a command.", "")...)}}
 }
 
@@ -133,9 +133,9 @@ func overviewToday(o Options, jobs []jobhealth.Job) []mint.Section {
 	}
 	secs = append(secs, mint.Section{Name: "Usual starts", Rows: starts})
 	secs = append(secs, mint.Section{Rows: []mint.Row{
-		mint.Action(mint.ActionOpts{ID: "ov-day", Label: "The day", Get: func() string { return "⏎" },
+		mint.Action(mint.ActionOpts{ID: "ov-day", Label: "Day", Get: func() string { return "⏎" },
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(Day(o)) }}),
-		mint.Action(mint.ActionOpts{ID: "ov-respace", Label: "Re-spacing", Get: func() string { return "⏎" },
+		mint.Action(mint.ActionOpts{ID: "ov-respace", Label: "Respace", Get: func() string { return "⏎" },
 			OnActivate: func(ctx *mint.Ctx) { ctx.Push(Respace(o)) }}),
 	}})
 	return secs

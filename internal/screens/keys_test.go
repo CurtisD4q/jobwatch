@@ -30,15 +30,15 @@ func TestEveryScreenHasTheKeys(t *testing.T) {
 			}
 		}
 		got := keysOf(t, ks)
-		if !got["r"] || !got["?"] && scr.Title != "How this works" || !got["o"] && scr.Title != "Overview" {
+		if !got["r"] || !got["?"] && scr.Title != "Guide" || !got["o"] && scr.Title != "Overview" {
 			t.Errorf("%s keys: %v", scr.Title, ks)
 		}
-		if scr.Title == "The day" && got["d"] {
+		if scr.Title == "Day" && got["d"] {
 			t.Error("the day opens itself")
 		}
 	}
 	frame := text(Settings(o))
-	for _, w := range []string{"d   The day", "r   read the history", "History", "Key style", "default", "Version", "9.9"} {
+	for _, w := range []string{"d   Day", "r   read the history", "History", "Key style", "default", "Version", "9.9"} {
 		if !strings.Contains(frame, w) {
 			t.Errorf("settings lack %q:\n%s", w, frame)
 		}

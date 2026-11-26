@@ -22,21 +22,21 @@ func Entries(o Options) []mint.HomeItem {
 			Open: func() *mint.Screen { return Overview(o) }},
 		{Icon: "≡", Label: "Jobs", Desc: "Each job in a word, with the last success and the worst finding",
 			Open: func() *mint.Screen { return Jobs(o) }},
-		{Icon: "◷", Label: "The day", Desc: "24 hours: each job's usual run and the gap before the next",
+		{Icon: "◷", Label: "Day", Desc: "24 hours: each job's usual run and the gap before the next",
 			Open: func() *mint.Screen { return Day(o) }},
 		{Icon: "!", Label: "Alerts", Desc: "What was sent, and what a shadow check would have sent",
 			Open: func() *mint.Screen { return Alerts(o) }},
-		{Icon: "⇄", Label: "Re-spacing", Desc: "Start times that would make jobs overlap less; nothing is applied",
+		{Icon: "⇄", Label: "Respace", Desc: "Start times that would make jobs overlap less; nothing is applied",
 			Open: func() *mint.Screen { return Respace(o) }},
-		{Icon: "+", Label: "Add a job", Desc: "Record the runs of a line of your crontab, where it is",
+		{Icon: "+", Label: "Add job", Desc: "Record the runs of a line of your crontab, where it is",
 			Open: func() *mint.Screen { return AddJobs(o) }},
-		{Icon: "⇣", Label: "Import history", Desc: "Runs from the journal, or an rsync, rclone or cron log",
+		{Icon: "⇣", Label: "Import", Desc: "Runs from the journal, or an rsync, rclone or cron log",
 			Open: func() *mint.Screen { return Import(o) }},
-		{Icon: "◉", Label: "Background check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
+		{Icon: "◉", Label: "Check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
 			Open: func() *mint.Screen { return BackgroundCheck(o) }},
-		{Icon: "?", Label: "How this works", Desc: "What jobwatch does, in a few steps",
+		{Icon: "?", Label: "Guide", Desc: "What jobwatch does, in a few steps",
 			Open: func() *mint.Screen { return Guide(o) }},
-		{Icon: "⚙", Label: "Keys and settings", Desc: "The keys, where things are kept, and how it looks",
+		{Icon: "⚙", Label: "Settings", Desc: "The keys, where things are kept, and how it looks",
 			Open: func() *mint.Screen { return Settings(o) }},
 	}
 }
@@ -50,13 +50,13 @@ func HomeNote(o Options) string {
 		return "Could not read the runs: " + err.Error()
 	}
 	if len(rep.Statuses) == 0 {
-		return "New here? Open How this works, or Add a job to record your first one."
+		return "New here? Open Guide, or Add job to record your first one."
 	}
 	if note := overviewBanner(rep, true, len(rep.Statuses)); note != "" {
 		return note
 	}
 	if !o.checkSettings().On {
-		return "The background check is off: nothing will alert you. Open Background check to turn it on."
+		return "The background check is off: nothing will alert you. Open Check to turn it on."
 	}
 	return ""
 }
@@ -295,7 +295,7 @@ func Evidence(o Options, name string) *mint.Screen {
 			{Name: "Runs", Rows: runRows(o, name)},
 			{Name: "Settings", Rows: settingsRows(o, name, rep.Findings, mutes)},
 			{Name: "", Rows: []mint.Row{
-				mint.Action(mint.ActionOpts{ID: "day", Label: "The day",
+				mint.Action(mint.ActionOpts{ID: "day", Label: "Day",
 					Get:        func() string { return "⏎" },
 					OnActivate: func(ctx *mint.Ctx) { ctx.Push(Day(o)) }}),
 				mint.Note("It never changes a schedule itself."),

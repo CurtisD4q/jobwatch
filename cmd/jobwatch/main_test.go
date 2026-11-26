@@ -13,10 +13,10 @@ func TestOpenScreen(t *testing.T) {
 		{[]string{"jobwatch", "--dir", "/tmp/x"}, []string{"jobwatch"}},
 		{[]string{"jobwatch", "--dir=/tmp/x"}, []string{"jobwatch"}},
 		// A screen asked for is left alone, in either form, wherever it is.
-		{[]string{"jobwatch", "--screen", "The day"}, []string{"jobwatch", "--screen", "The day"}},
-		{[]string{"jobwatch", "--dir", "/tmp/x", "--screen", "The day"},
-			[]string{"jobwatch", "--screen", "The day"}},
-		{[]string{"jobwatch", "--screen=The day"}, []string{"jobwatch", "--screen=The day"}},
+		{[]string{"jobwatch", "--screen", "Day"}, []string{"jobwatch", "--screen", "Day"}},
+		{[]string{"jobwatch", "--dir", "/tmp/x", "--screen", "Day"},
+			[]string{"jobwatch", "--screen", "Day"}},
+		{[]string{"jobwatch", "--screen=Day"}, []string{"jobwatch", "--screen=Day"}},
 		// Mint's own flags are not ours to rewrite.
 		{[]string{"jobwatch", "--help"}, []string{"jobwatch", "--help"}},
 		{[]string{"jobwatch", "--version"}, []string{"jobwatch", "--version"}},

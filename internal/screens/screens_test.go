@@ -58,7 +58,7 @@ func TestJobwatchScreens(t *testing.T) {
 	if !strings.Contains(text(Evidence(o, "no-such-job")), "No job called") {
 		t.Fatal("unknown job")
 	}
-	// The day is drawn from the same runs. The name keeps its end, which is
+	// Day is drawn from the same runs. The name keeps its end, which is
 	// what tells one backup from another.
 	day := text(Day(o))
 	if !strings.Contains(day, "backup") || !strings.Contains(day, "█") {
@@ -66,7 +66,7 @@ func TestJobwatchScreens(t *testing.T) {
 	}
 }
 
-// The day draws each job on its own row, so choosing one opens its
+// Day draws each job on its own row, so choosing one opens its
 // evidence from the day as from the list. The bars keep every column the
 // command's picture gives them, so the two cannot say different things.
 func TestDayRowsKeepThePicture(t *testing.T) {
