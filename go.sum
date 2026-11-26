@@ -4,8 +4,8 @@ github.com/CurtisD4q/pmin-contracts v0.0.0-20261123013655-06290e2b1c5b h1:iEbZOQ
 github.com/CurtisD4q/pmin-contracts v0.0.0-20261123013655-06290e2b1c5b/go.mod h1:V51I9TvLKOmEvbI8eG6lxnqBSquWMPPUvjinqnHyB90=
 github.com/CurtisD4q/pmin-jobhealth v0.0.0-20261122215810-5ac92606b92f h1:BfwFIOvrGyEwlx/HTGtZWDvp4QijloJ5cl/akCtm1U0=
 github.com/CurtisD4q/pmin-jobhealth v0.0.0-20261122215810-5ac92606b92f/go.mod h1:XoSveXYuq6oPqJVFG7uqqO9XoFZQDM5J48nNyCGSGwI=
-github.com/CurtisD4q/pmin-kit v0.0.0-20261125235127-7fc399e03724 h1:rLCnrqyl5taya/JiqXDZ1JH+obkxQKwnckfHqlsbvvs=
-github.com/CurtisD4q/pmin-kit v0.0.0-20261125235127-7fc399e03724/go.mod h1:6BPRoanXAo3DBEFY/wONYpItXF5I7s8v0+pqPB1ViN0=
+github.com/CurtisD4q/pmin-kit v0.0.0-20261126150007-1fe51dbb9291 h1:bIEgccjopOza+4PQ6UTiuBoOErvrdl7iQnZotIwW3xw=
+github.com/CurtisD4q/pmin-kit v0.0.0-20261126150007-1fe51dbb9291/go.mod h1:6BPRoanXAo3DBEFY/wONYpItXF5I7s8v0+pqPB1ViN0=
 github.com/CurtisD4q/pmin-loom v0.0.0-20261122205240-c07654716077 h1:H3xKtq7/I7chXgILDZ77w8VkhMzhHw0YJGi9SaBAlmI=
 github.com/CurtisD4q/pmin-loom v0.0.0-20261122205240-c07654716077/go.mod h1:VtAMdi0wNQ1LAY42sJwFiSA5J+Lr2fv/Nl7djPeyIQY=
 github.com/CurtisD4q/pmin-tools v0.0.0-20261122210950-258e432ca1b6 h1:1daZakouDC6EnSVAaa+6HEsRZYtGLP4qsh+D5BfEfFk=
