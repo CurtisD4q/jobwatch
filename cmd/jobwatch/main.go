@@ -55,12 +55,14 @@ func main() {
 		Version: Version,
 		Group:   "Observe over time",
 		Items:   screens.Entries(o),
+		Note:    screens.HomeNote(o),
+		Status:  screens.HomeStatus(o),
 		QuickStart: []string{
 			"jobwatch watches the jobs cron runs. Put this in front of a",
 			"crontab line, and each run of it is recorded:",
 			"    jobwatch record NAME -- COMMAND",
 			"",
-			"Overview shows every job, worst first; Enter opens one.",
+			"Pick a screen from the menu; Overview shows every job, worst first.",
 			"",
 			"Tab or 1-3 moves between panes · / filters a list",
 			"? explains how it works · q quits",
@@ -125,9 +127,6 @@ func flagRest(args []string) []string {
 // nothing was asked for. --dir is ours and left out, so `jobwatch --dir X`
 // still counts as no arguments.
 func openScreen(args []string) []string {
-	rest := append([]string{args[0]}, flagRest(args[1:])...)
-	if len(rest) == 1 {
-		rest = append(rest, "--screen", "Menu")
-	}
-	return rest
+	// With no screen asked for, jobwatch opens on its launch menu.
+	return append([]string{args[0]}, flagRest(args[1:])...)
 }

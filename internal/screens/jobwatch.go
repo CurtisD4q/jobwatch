@@ -15,30 +15,58 @@ func Entries(o Options) []mint.HomeItem {
 	if o.snap == nil {
 		o.snap = newSnapshot()
 	}
+	// The launch menu: what jobwatch opens on. Each screen has its own
+	// icon, its name, and a line on what it is for.
 	return []mint.HomeItem{
-		{Icon: "✦", Label: "Menu", Desc: "Every screen, with its key, and how things stand",
-			Open: func() *mint.Screen { return Menu(o) }},
-		{Icon: "✦", Label: "Overview", Desc: "The jobs, today, and the background check, side by side",
+		{Icon: "◧", Label: "Overview", Desc: "The jobs, today, and the background check, side by side",
 			Open: func() *mint.Screen { return Overview(o) }},
-		{Icon: "✦", Label: "Jobs", Desc: "Each job in a word, with the last success and the worst finding",
+		{Icon: "≡", Label: "Jobs", Desc: "Each job in a word, with the last success and the worst finding",
 			Open: func() *mint.Screen { return Jobs(o) }},
 		{Icon: "◷", Label: "The day", Desc: "24 hours: each job's usual run and the gap before the next",
 			Open: func() *mint.Screen { return Day(o) }},
+		{Icon: "!", Label: "Alerts", Desc: "What was sent, and what a shadow check would have sent",
+			Open: func() *mint.Screen { return Alerts(o) }},
 		{Icon: "⇄", Label: "Re-spacing", Desc: "Start times that would make jobs overlap less; nothing is applied",
 			Open: func() *mint.Screen { return Respace(o) }},
 		{Icon: "+", Label: "Add a job", Desc: "Record the runs of a line of your crontab, where it is",
 			Open: func() *mint.Screen { return AddJobs(o) }},
-		{Icon: "⏲", Label: "Background check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
-			Open: func() *mint.Screen { return BackgroundCheck(o) }},
 		{Icon: "⇣", Label: "Import history", Desc: "Runs from the journal, or an rsync, rclone or cron log",
 			Open: func() *mint.Screen { return Import(o) }},
+		{Icon: "◉", Label: "Background check", Desc: "Turn the check that sends alerts on or off; shadow mode; notifications",
+			Open: func() *mint.Screen { return BackgroundCheck(o) }},
+		{Icon: "✦", Label: "Menu", Desc: "Every screen with its key, and how things stand at a glance (m from any screen)",
+			Open: func() *mint.Screen { return Menu(o) }},
 		{Icon: "?", Label: "How this works", Desc: "What jobwatch does, in a few steps",
 			Open: func() *mint.Screen { return Guide(o) }},
 		{Icon: "⚙", Label: "Keys and settings", Desc: "The keys, where things are kept, and how it looks",
 			Open: func() *mint.Screen { return Settings(o) }},
-		{Icon: "!", Label: "Alerts", Desc: "What was sent, and what a shadow check would have sent",
-			Open: func() *mint.Screen { return Alerts(o) }},
 	}
+}
+
+// HomeNote is the line under the launch menu's title: where to start, or
+// the one thing most worth knowing. It names screens on the menu, not keys,
+// as the menu has none of its own.
+func HomeNote(o Options) string {
+	_, rep, _, err := o.check()
+	if err != nil {
+		return "Could not read the runs: " + err.Error()
+	}
+	if len(rep.Statuses) == 0 {
+		return "New here? Open How this works, or Add a job to record your first one."
+	}
+	if note := overviewBanner(rep, true, len(rep.Statuses)); note != "" {
+		return note
+	}
+	if !o.checkSettings().On {
+		return "The background check is off: nothing will alert you. Open Background check to turn it on."
+	}
+	return ""
+}
+
+// HomeStatus is the badges on the launch menu's footer: how the jobs are,
+// and the background check.
+func HomeStatus(o Options) func() []mint.Badge {
+	return func() []mint.Badge { return o.badges() }
 }
 
 // Jobs is jobwatch's first screen: one row a job, its state, when it last
