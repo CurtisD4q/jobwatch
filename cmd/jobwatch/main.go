@@ -55,6 +55,16 @@ func main() {
 		Version: Version,
 		Group:   "Observe over time",
 		Items:   screens.Entries(o),
+		QuickStart: []string{
+			"jobwatch watches the jobs cron runs. Put this in front of a",
+			"crontab line, and each run of it is recorded:",
+			"    jobwatch record NAME -- COMMAND",
+			"",
+			"Overview shows every job, worst first; Enter opens one.",
+			"",
+			"Tab or 1-3 moves between panes · / filters a list",
+			"? explains how it works · q quits",
+		},
 	}
 	os.Args = openScreen(os.Args)
 	app.Run()
