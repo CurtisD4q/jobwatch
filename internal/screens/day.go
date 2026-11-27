@@ -33,10 +33,15 @@ func Day(o Options) *mint.Screen {
 		}
 		_, bars := jobhealth.DayTimeline(jobs, now)
 		// The name's own column, then a space, then the bar: the bar gets
-		// the rest of the terminal, so a wider window shows a wider day.
-		indent, width := dayLayout(termCols())
-		pad := strings.Repeat(" ", indent)
-		rows := []mint.Row{mint.Note(pad + dayAxis(width))}
+		// the rest of the line, so a wider window shows a wider day. fitted
+		// makes a line of the day once the kit says how wide it is.
+		fitted := func(r mint.Row, draw func(width int) string) mint.Row {
+			return r.Fit(func(cols int) string {
+				indent, width := dayLayout(cols)
+				return strings.Repeat(" ", indent) + draw(width)
+			})
+		}
+		rows := []mint.Row{fitted(mint.Note(""), dayAxis)}
 		for _, b := range bars {
 			b := b
 			label := b.Name
@@ -52,12 +57,12 @@ func Day(o Options) *mint.Screen {
 					ctx.Push(Evidence(o, b.Name))
 				},
 			}))
-			rows = append(rows, mint.Label(mint.StyleBody, pad+drawBar(b, width)))
+			rows = append(rows, fitted(mint.Label(mint.StyleBody, ""), func(width int) string { return drawBar(b, width) }))
 			// What the bar cannot show: a gap too long to draw, or a job
 			// that never recorded how long it runs, so there was no run
 			// to draw at all.
 			if said := longGap(b); said != "" {
-				rows = append(rows, wrapped(said, pad)...)
+				rows = append(rows, fitted(mint.Note(""), func(int) string { return said }))
 			}
 		}
 		if len(bars) == 0 {
@@ -70,17 +75,12 @@ func Day(o Options) *mint.Screen {
 	return o.withKeys(scr)
 }
 
-// dayLayout is where the day's bars start and how wide they are in a
-// terminal this wide. A bar is drawn on the line under its job's name; on
-// a wide screen it starts after the name's column, so the bars line up
+// dayLayout is where the day's bars start and how wide they are, given
+// the columns a line has. A bar is drawn on the line under its job's name;
+// on a wide screen it starts after the name's column, so the bars line up
 // with the names, and on a narrow one it starts at the edge, so the day
-// is never cut off. The rail takes its columns, then eight go to the frame, its
-// margins and the scroll bar.
-func dayLayout(cols int) (indent, width int) {
-	if cols <= 0 {
-		cols = 80
-	}
-	content := pageCols(cols) - 8
+// is never cut off.
+func dayLayout(content int) (indent, width int) {
 	if w := content - dayNameWidth - 1; w >= dayCols {
 		return dayNameWidth + 1, w
 	}

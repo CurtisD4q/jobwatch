@@ -4,7 +4,6 @@ import (
 	"fmt"
 	jobhealth "github.com/CurtisD4q/pmin-jobhealth"
 	mint "github.com/CurtisD4q/pmin-kit"
-	"github.com/CurtisD4q/pmin-kit/layouts"
 	"sort"
 	"strings"
 	"time"
@@ -305,36 +304,18 @@ func Evidence(o Options, name string) *mint.Screen {
 	return o.withKeys(scr)
 }
 
-// pageCols is the columns a page has on a terminal cols wide: pmin-kit's
-// page rail, the icons down the left, takes four of them on a screen of 48
-// columns or more.
-func pageCols(cols int) int {
-	if cols >= 48 {
-		return cols - 4
-	}
-	return cols
-}
-
-// termCols is the terminal's width, which text wraps to. Tests set it to
-// draw a screen at a chosen width.
+// termCols is the terminal's width, which the banner's wording is chosen
+// for. Tests set it to draw a screen at a chosen width.
 var termCols = func() int {
 	_, cols := mint.TermSize()
 	return cols
 }
 
-// wrapped is text as notes wrapped to the terminal's width, each line after
-// the first indented as the first is, so a finding stays readable on a
-// narrow screen rather than being cut off.
+// wrapped is a run of text as a note. pmin-kit wraps a note to the width of
+// its pane, beside the page rail, and indents each line as the first is, so
+// a finding stays readable on a narrow screen rather than being cut off.
 func wrapped(text, indent string) []mint.Row {
-	cols := termCols()
-	if cols <= 0 {
-		cols = 80
-	}
-	var rows []mint.Row
-	for _, l := range layouts.Wrap(text, pageCols(cols)-8-len(indent)) {
-		rows = append(rows, mint.Note(indent+l))
-	}
-	return rows
+	return []mint.Row{mint.Note(indent + text)}
 }
 
 // since is how long ago something was, for a list or a card: "just now",

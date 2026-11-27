@@ -1,45 +1,56 @@
 package screens
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	mint "github.com/CurtisD4q/pmin-kit"
 	loom "github.com/CurtisD4q/pmin-loom"
 	"github.com/CurtisD4q/pmin-tools/run"
 )
 
-// besideRail is the columns a page gets in an App on a terminal this wide:
-// pmin-kit's page rail takes four on a screen of 48 columns or more. A test
-// cannot give a screen a rail, so it draws the page that much narrower.
-func besideRail(cols int) int {
-	if cols >= 48 {
-		return cols - 4
-	}
-	return cols
+// inApp draws a page as the program would, with pmin-kit's own page rail.
+func inApp(open func() *mint.Screen, cols int) string {
+	app := &mint.App{Title: "Jobwatch", Items: []mint.HomeItem{{Icon: "x", Label: "T", Open: func() *mint.Screen {
+		s := open()
+		if s.Refresh != nil {
+			s.Refresh(s)
+		}
+		return s
+	}}}}
+	return strings.Join(grid(app.FrameText(1, 80, cols), 80, cols), "\n")
 }
 
-// Wrapped text fits beside the rail: no row is wrapped a second time, which
-// would leave a word or two on a line of their own.
+// Wrapped text is whole beside the rail: every word is there, and no line is
+// left holding a stray word.
 func TestWrappedTextFitsBesideTheRail(t *testing.T) {
-	old := termCols
-	t.Cleanup(func() { termCols = old })
-	for _, cols := range []int{52, 80, 100, 140} {
-		cols := cols
-		termCols = func() int { return cols }
+	for _, cols := range []int{48, 52, 80, 100, 140} {
 		for _, indent := range []string{"", "   "} {
-			rows := wrapped(strings.Repeat("ab ", 300), indent)
-			scr := &mint.Screen{Title: "T", Sections: []mint.Section{{Rows: rows}}}
-			width := besideRail(cols)
-			lines := 0
-			for _, line := range grid(scr.FrameText(80, width), 80, width) {
-				if strings.Contains(line, "ab") {
-					lines++
+			frame := inApp(func() *mint.Screen {
+				return &mint.Screen{Sections: []mint.Section{{Rows: wrapped(strings.Repeat("ab ", 300), indent)}}}
+			}, cols)
+			var counts []int
+			total := 0
+			for _, line := range strings.Split(frame, "\n") {
+				if n := strings.Count(line, "ab"); n > 0 {
+					counts = append(counts, n)
+					total += n
 				}
 			}
-			if lines != len(rows) {
-				t.Errorf("%d columns, indent %d: %d rows drawn on %d lines", cols, len(indent), len(rows), lines)
+			if total != 300 {
+				t.Errorf("%d columns: %d of 300 words drawn", cols, total)
+				continue
+			}
+			for _, n := range counts[:len(counts)-1] {
+				if n != counts[0] {
+					t.Errorf("%d columns, indent %d: uneven lines %v", cols, len(indent), counts)
+					break
+				}
 			}
 		}
 	}
@@ -57,15 +68,10 @@ func TestDayAxisFitsBesideTheRail(t *testing.T) {
 	if err := b.ReplaceImport("photo-sync", runs); err != nil {
 		t.Fatal(err)
 	}
-	old := termCols
-	t.Cleanup(func() { termCols = old })
-	for _, cols := range []int{52, 80, 100, 140} {
-		cols := cols
-		termCols = func() int { return cols }
-		scr := Day(Options{Book: b, snap: newSnapshot(), Version: "test"})
-		scr.Refresh(scr)
-		width := besideRail(cols)
-		frame := strings.Join(grid(scr.FrameText(40, width), 40, width), "\n")
+	for _, cols := range []int{48, 52, 80, 100, 140} {
+		frame := inApp(func() *mint.Screen {
+			return Day(Options{Book: b, snap: newSnapshot(), Version: "test"})
+		}, cols)
 		found := false
 		for _, line := range strings.Split(frame, "\n") {
 			if strings.Contains(line, "00") && strings.Contains(line, "06") {
@@ -75,6 +81,43 @@ func TestDayAxisFitsBesideTheRail(t *testing.T) {
 		}
 		if !found {
 			t.Errorf("%d columns: the hours are not on one line\n%s", cols, frame)
+		}
+	}
+}
+
+// A note under a job's bar starts where the bars do.
+func TestDayNoteLinesUpWithTheBars(t *testing.T) {
+	b := &loom.Book{Dir: t.TempDir(), Exec: run.Local{}}
+	base := time.Now().Add(-10 * 24 * time.Hour)
+	// Recorded runs that took less than a second leave no bar to draw, which
+	// a note says instead. They are written as the book keeps them, so none
+	// can happen to cross into the next second.
+	var lines strings.Builder
+	for i := 0; i < 9; i++ {
+		at := base.AddDate(0, 0, i).UTC().Format(time.RFC3339)
+		fmt.Fprintf(&lines, `{"v":2,"id":"quick-%d","recipe":"quick","start":%q,"end":%q,"elapsed":0,"by":"recorded","ok":true}`+"\n", i, at, at)
+	}
+	if err := os.MkdirAll(filepath.Join(b.Dir, "runs"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(b.Dir, "runs", "quick.jsonl"), []byte(lines.String()), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, cols := range []int{52, 80, 100, 140} {
+		frame := inApp(func() *mint.Screen {
+			return Day(Options{Book: b, snap: newSnapshot(), Version: "test"})
+		}, cols)
+		axis, note := -1, -1
+		for _, line := range strings.Split(frame, "\n") {
+			if i := strings.Index(line, "00 "); i >= 0 && strings.Contains(line, "06") && axis < 0 {
+				axis = utf8.RuneCountInString(line[:i])
+			}
+			if i := strings.Index(line, "no end time recorded"); i >= 0 {
+				note = utf8.RuneCountInString(line[:i])
+			}
+		}
+		if axis < 0 || note != axis {
+			t.Errorf("%d columns: the note starts at %d, the bars at %d\n%s", cols, note, axis, strings.TrimSpace(frame))
 		}
 	}
 }
