@@ -18,7 +18,7 @@ jobwatch opens on its launch menu. On the pages after that, an icon for each pag
 
 | | |
 |---|---|
-| ![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png) | ![A job's evidence: why it is overdue and failing, what it said, and its recent runs](screenshots/job.png) |
+| ![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png) | ![A job's evidence: why it is failing, what it said, and its recent runs](screenshots/job.png) |
 | **The overview.** The jobs worst first, today's usual starts, and the background check with its latest alerts. | **The evidence.** Open a job for every finding, with the numbers behind it, what the command said when it failed, and its runs. |
 | ![Day: each job's usual run across 24 hours, and where the next job starts](screenshots/day.png) | ![Add job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
 | **Day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add job.** Your crontab, line by line, and whether each is recorded. |
