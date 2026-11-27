@@ -305,6 +305,16 @@ func Evidence(o Options, name string) *mint.Screen {
 	return o.withKeys(scr)
 }
 
+// pageCols is the columns a page has on a terminal cols wide: pmin-kit's
+// page rail, the icons down the left, takes four of them on a screen of 48
+// columns or more.
+func pageCols(cols int) int {
+	if cols >= 48 {
+		return cols - 4
+	}
+	return cols
+}
+
 // termCols is the terminal's width, which text wraps to. Tests set it to
 // draw a screen at a chosen width.
 var termCols = func() int {
@@ -321,7 +331,7 @@ func wrapped(text, indent string) []mint.Row {
 		cols = 80
 	}
 	var rows []mint.Row
-	for _, l := range layouts.Wrap(text, cols-8-len(indent)) {
+	for _, l := range layouts.Wrap(text, pageCols(cols)-8-len(indent)) {
 		rows = append(rows, mint.Note(indent+l))
 	}
 	return rows

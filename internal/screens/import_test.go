@@ -57,7 +57,8 @@ func TestImportScreen(t *testing.T) {
 	if !strings.Contains(empty, "No timers found here") {
 		t.Fatal(empty)
 	}
-	if g := text(Guide(o)); !strings.Contains(g, "1. Add your jobs") || !strings.Contains(g, "It never changes a") {
+	// Where lines break depends on the width, so compare the words.
+	if g := strings.Join(strings.Fields(text(Guide(o))), " "); !strings.Contains(g, "1. Add your jobs") || !strings.Contains(g, "It never changes a") {
 		t.Fatal(g)
 	}
 }

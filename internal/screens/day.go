@@ -74,12 +74,13 @@ func Day(o Options) *mint.Screen {
 // terminal this wide. A bar is drawn on the line under its job's name; on
 // a wide screen it starts after the name's column, so the bars line up
 // with the names, and on a narrow one it starts at the edge, so the day
-// is never cut off. Eight columns go to the frame, its margins and the scroll bar.
+// is never cut off. The rail takes its columns, then eight go to the frame, its
+// margins and the scroll bar.
 func dayLayout(cols int) (indent, width int) {
 	if cols <= 0 {
 		cols = 80
 	}
-	content := cols - 8
+	content := pageCols(cols) - 8
 	if w := content - dayNameWidth - 1; w >= dayCols {
 		return dayNameWidth + 1, w
 	}
