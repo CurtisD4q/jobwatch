@@ -24,10 +24,8 @@ jobwatch opens on its launch menu. On the pages after that, an icon for each pag
 | **Day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add job.** Your crontab, line by line, and whether each is recorded. |
 | ![The one change to the crontab, shown before and after, waiting for Yes or No](screenshots/confirm.png) | ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) |
 | **One change, shown first.** The line before and after, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
-| ![Guide: what jobwatch is for, and the first steps](screenshots/guide.png) | |
-| **Guide.** What jobwatch is for and how to start; `?` opens it from any page. | |
-| ![Phone Screenshot: ](screenshots/phone.png) | |
-| The launch menu at 52 columns, with each page's description wrapped under its name | |
+| ![Guide: what jobwatch is for, and the first steps](screenshots/guide.png) | ![Phone Screenshot: ](screenshots/phone.png) |
+| **Guide.** What jobwatch is for and how to start; `?` opens it from any page.| The launch menu at 52 columns, with each page's description wrapped under its name |
 
 ## What it does
 
