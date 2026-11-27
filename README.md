@@ -8,9 +8,11 @@ A standalone terminal app built with [pmin](https://github.com/CurtisD4q/pmin), 
 
 **Install:** `curl -fsSL https://raw.githubusercontent.com/CurtisD4q/jobwatch/main/install.sh | sh` (Linux and macOS; [more ways below](#install)).
 
-![The menu: every screen grouped under Watch, Set up and Help, each with the key that opens it, and beside it the jobs, the check and the latest alert at a glance](screenshots/menu.png)
+> **Warning: do not put recording in front of a job you depend on yet.** A recorded command does not get most of your environment variables, and only the end of its output is passed on. See [Known problems](#known-problems).
 
-jobwatch opens on its launch menu. On every screen after that the pages run down the left (`m` moves into them), and the top line says where you are and how things stand: the jobs, the check and the latest alert.
+![The launch menu: each page with a line on what it is for, the one thing most worth knowing above them, and how the jobs and the check stand below](screenshots/menu.png)
+
+jobwatch opens on its launch menu. On the pages after that, an icon for each page runs down the left (`m` opens the list), and the top line says where you are and how things stand: the jobs, the check and the latest alert.
 
 ## Screenshots
 
@@ -18,16 +20,16 @@ jobwatch opens on its launch menu. On every screen after that the pages run down
 |---|---|
 | ![The overview: the jobs worst first, today's usual starts, and the background check with its latest alerts](screenshots/overview.png) | ![A job's evidence: why it is overdue and failing, what it said, and its recent runs](screenshots/job.png) |
 | **The overview.** The jobs worst first, today's usual starts, and the background check with its latest alerts. | **The evidence.** Open a job for every finding, with the numbers behind it, what the command said when it failed, and its runs. |
-| ![Day: each job's usual run, its slow tail, and the gap before the next job starts](screenshots/day.png) | ![Add job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
+| ![Day: each job's usual run across 24 hours, and where the next job starts](screenshots/day.png) | ![Add job: your crontab, each line marked recorded, not recorded, or needs the shell](screenshots/addjob.png) |
 | **Day.** 24 hours across the terminal: the usual run, the slow tail, and how close it comes to the next job. | **Add job.** Your crontab, line by line, and whether each is recorded. |
-| ![The one change to the crontab, before and after, with how to put it back](screenshots/confirm.png) | ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) |
-| **One change, shown first.** The line before and after, and how to undo it, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
-| ![Guide: what jobwatch is for, in five steps](screenshots/guide.png) | |
-| **Guide.** A one-page guide, one key away on every screen. | |
+| ![The one change to the crontab, shown before and after, waiting for Yes or No](screenshots/confirm.png) | ![The background check: on, in shadow mode, and where alerts are written](screenshots/check.png) |
+| **One change, shown first.** The line before and after, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
+| ![Guide: what jobwatch is for, and the first steps](screenshots/guide.png) | |
+| **Guide.** What jobwatch is for and how to start; `?` opens it from any page. | |
 
-On a narrow terminal the panes stack, so it works over ssh from a phone:
+The screenshots show made-up jobs. On a narrow terminal, text wraps and panes stack, for use over ssh from a phone:
 
-<img src="screenshots/phone.png" alt="The menu at 52 columns: the screens, then the jobs and the check at a glance, stacked" width="320">
+<img src="screenshots/phone.png" alt="The launch menu at 52 columns, with each page's description wrapped under its name" width="320">
 
 ## What it does
 
@@ -70,9 +72,11 @@ After `make install` the cloned folder can be deleted. To clone and fetch the li
 
 ## Getting started
 
-Run `jobwatch`. It opens on the menu; with no jobs yet, the amber line there says where to start, and the overview (`o`) lists the first steps:
+Run `jobwatch`. It opens on the menu; with no jobs yet, the amber line there says where to start. Choose **Overview** and press Enter to see the first steps. The letter keys below work from there, not on the launch menu.
 
-1. **Add job** (`n`). Choose a line of your crontab. jobwatch shows the one change that records its runs, before and after, and makes it when you agree, with undo. The job keeps its schedule, and its output and exit code still reach cron, so cron still mails a failure.
+Read [Known problems](#known-problems) before step 1.
+
+1. **Add job** (`n`). Choose a line of your crontab. jobwatch shows the one change that records its runs, before and after, and makes it when you agree, with undo. The job keeps its schedule and its exit code still reaches cron. Its environment and output do **not** yet come through unchanged.
 2. **Import** (`i`). Read a timer's service from the journal (yours or the system's), or an rsync, rclone or cron log.
 3. **Turn on the background check, in shadow** (`c`). Leave it a week or two and compare what it would have sent with what really happened, then switch it to sending.
 4. **Read the overview** (`o`). Missed and failed runs show at once. Slowing down, running into the next job and a step to a new level need some runs first, and say how sure they are.
@@ -84,15 +88,17 @@ You can also record a job by hand: put `jobwatch record NAME --` in front of the
 30 2 * * *  /usr/local/bin/jobwatch record nightly-backup -- restic backup /data
 ```
 
+For now, this works only if the command needs no extra environment variables. This example would not get `RESTIC_REPOSITORY` or `RESTIC_PASSWORD_FILE`. Never redirect or pipe a recorded command's output to keep it as data, such as a database dump: it would be cut short.
+
 Six weeks later the overview says *"Nightly backup takes 31% longer per GB than 6 weeks ago (p = 0.01). The data has hardly changed, so it is slowing down, not growing."* Open it and you see the runs, the trend, and its slowest runs ending four minutes before the 03:00 sync starts. You move the sync by hand.
 
 ## Keys
 
-The same on every screen:
+The same on every page after the launch menu (on the menu itself, use ↑↓ and Enter). Jobs and Respace have no letter of their own: open them from the menu or with `m`.
 
 | Key | Opens |
 |---|---|
-| `m` | The pages down the left: ↑↓ to choose, Enter to open, `m` or Esc to go back |
+| `m` | The list of pages, over the icons on the left: ↑↓ to choose, Enter to open, `m` or Esc to go back |
 | `o` | Overview |
 | `d` | Day |
 | `a` | Alerts |
@@ -145,7 +151,7 @@ Of what a command printed, the last 2,000 characters are kept, with passwords an
 - **Every finding shows its numbers**: the runs used, the test, and a date range rather than a single date.
 - **Weekday and month-end cycles** are modelled before testing for a trend, so a heavy Monday is not reported as a slowdown.
 - **False alarms are controlled across jobs**, so ten jobs tested at 5% do not produce a stream of spurious warnings.
-- **Times are stored in UTC**, so daylight-saving changes do not create fake patterns.
+- **Times are stored in UTC**, so daylight-saving changes do not create fake patterns in recorded runs. Times from rsync, rclone and cron logs are the exception: see [Known problems](#known-problems).
 - **Jobs without end times** (a cron log) are marked lower confidence.
 - **Contention between jobs is always worded as a hint.** Moving one job is the test.
 
@@ -155,8 +161,35 @@ The false-alarm rate and the detection of planted faults are measured against a 
 
 - **It never changes a schedule** and never stops or moves a job. Respace is a suggestion.
 - **The crontab is changed only when you agree**, one line at a time, with the line before and after shown first and an undo. A line that needs the shell (a redirect, a pipe) is not changed; jobwatch says to put it in a script.
-- **Recorded commands run directly, never through a shell**, with their output and exit code passed straight through.
+- **Recorded commands run directly, never through a shell**, and their exit code is passed on. Their environment and output are not passed through unchanged yet.
 - **Reading is read-only.** Import lists timers with `systemctl list-timers` and reads with `journalctl`; neither changes anything.
+
+## Known problems
+
+Found on `main` at commit `7f594c8`.
+
+**Recording** (reproduced)
+
+- A recorded command gets only a few of your environment variables, such as `PATH` and `HOME`, and `LANG` and `LC_ALL` are set to `C`. Variables such as `RESTIC_REPOSITORY`, `BORG_REPO` and `SSH_AUTH_SOCK` are dropped, so a job that works on its own can fail when recorded.
+- Only the end of what a command prints is passed on (about the last 2,000 characters in testing), and its errors come out on standard output. The app's own Add job, confirmation and Guide text still says output reaches cron.
+
+**The background check** (reproduced)
+
+- It exits 1 when any job has a problem, so its own run is recorded as failed. The next check then reports itself as failing, and carries on doing so after your jobs recover.
+- The command-line report lists `jobwatch-check` as one of your jobs, and can warn that another job is nearing it. The screens leave it out.
+
+**Imports and Respace** (reproduced with sample input)
+
+- Journal: a `Type=oneshot` service, usual for a timer, imports no runs. A program that prints a line starting "Finished " can make a failed run count as successful.
+- rsync and rclone: failed runs can count as successful. An rclone log with progress reports can turn one run into several, and an rsync run that stops early can be given the wrong length.
+- Cron logs: lines are not filtered by job. ISO timestamps and `CROND` lines are not read.
+- Respace misses overlaps across midnight, and can get the usual start wrong for a job that starts around midnight.
+
+**From reading the code**
+
+- A journal import that finds no runs still replaces that job's earlier import.
+- Times in rsync, rclone and cron logs are read as UTC, even if the log uses local time.
+- If a desktop notification fails, the check stops before sending the rest or printing its alerts.
 
 ## Not tested here
 
@@ -164,7 +197,7 @@ jobwatch was built in a container without systemd, a running cron daemon or a de
 
 ## Accessibility: where it stands
 
-Built in: plain words throughout, state always written out (never colour alone), the same keys on every screen, keyboard and mouse, Emacs and vim key styles, and layouts that stack on a narrow terminal.
+Built in: plain words throughout, state always written out (never colour alone), the same keys on every page after the launch menu, keyboard and mouse, Emacs and vim key styles, and layouts that stack on a narrow terminal.
 
 Not yet done: it has **not been tested with a screen reader or braille display**, or with people who have learning disabilities. A full-screen interface that redraws in place is hard for screen readers; until there is a plain mode, `jobwatch report` gives the same states as text. Treat the above as groundwork, not a claim.
 
