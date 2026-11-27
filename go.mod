@@ -10,4 +10,4 @@ require (
 	github.com/CurtisD4q/pmin-tools v0.0.0-20261122210950-258e432ca1b6
 )
 
-require github.com/CurtisD4q/pmin-contracts v0.0.0-20261123013655-06290e2b1c5b // indirect
+require github.com/CurtisD4q/pmin-contracts v0.0.0-20261123132359-dddca78a62af // indirect
