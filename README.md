@@ -26,10 +26,8 @@ jobwatch opens on its launch menu. On the pages after that, an icon for each pag
 | **One change, shown first.** The line before and after, before anything is written. | **The background check.** Runs on a schedule; in shadow it writes what it would send and sends nothing. |
 | ![Guide: what jobwatch is for, and the first steps](screenshots/guide.png) | |
 | **Guide.** What jobwatch is for and how to start; `?` opens it from any page. | |
-
-The screenshots show made-up jobs. On a narrow terminal, text wraps and panes stack, for use over ssh from a phone:
-
-<img src="screenshots/phone.png" alt="The launch menu at 52 columns, with each page's description wrapped under its name" width="320">
+| ![Phone Screenshot: ](screenshots/phone.png) | |
+| The launch menu at 52 columns, with each page's description wrapped under its name | |
 
 ## What it does
 
